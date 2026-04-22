@@ -1905,6 +1905,21 @@ function collectResponses() {
 }
 
 /* ── 12. SUBMIT TO NETLIFY FORMS ── */
+/* ══════════════════════════════════════════════
+   GOOGLE SHEETS BACKEND
+   
+   SETUP (one-time, 3 minutes):
+   1. Go to sheets.google.com → create new sheet named "EdUHK SES6026 Responses"
+   2. Click Extensions → Apps Script
+   3. Paste the Apps Script code from setup-instructions.html
+   4. Click Deploy → New deployment → Web app
+      - Execute as: Me
+      - Who has access: Anyone
+   5. Copy the Web App URL and paste it below as SCRIPT_URL
+═══════════════════════════════════════════════ */
+
+var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybVQaSZxXSumrc9Wlkb5efK4S2HunQ6-kiI_2VQaZdShLefUbB94PV7EPlbwlzTpZYTA/exec'; // ← PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+
 function collectFormData() {
   var q1val  = getSelectedPill('q1');
   var q4val  = getSelectedPill('q4');
@@ -1918,7 +1933,6 @@ function collectFormData() {
   var q23val = getSelectedPill('q23');
 
   return {
-    'form-name':              'eduhk-survey-ses6026',
     'submitted-at':           new Date().toISOString(),
     'consent-name':           window._consentName || '',
     'consent-date':           window._consentDate || '',
@@ -1935,6 +1949,8 @@ function collectFormData() {
     'q9-subject':             q9val === 'Others' ? ('Others: ' + getTextInput('#q9-other input')) : q9val,
     'q10-full-part-time':     getSelectedPill('q10'),
     'q11-study-mode':         q11val === 'Others' ? ('Others: ' + getTextInput('#q11-other input')) : q11val,
+    'q12-ftf-pct':            getTextInput('#q12-card input:first-of-type'),
+    'q12-online-pct':         getTextInput('#q12-card input:last-of-type'),
     'q13-usage-freq':         String(getSelectedLikert('q13') || ''),
     'q14-reasons-not-using':  getRanked('q14'),
     'q15-tool-used':          q15val === 'Others' ? ('Others: ' + getTextInput('#q15-other input')) : q15val,
@@ -1942,19 +1958,13 @@ function collectFormData() {
     'q17-understanding':      String(getSelectedLikert('q17') || ''),
     'q18-understanding-factors': getRanked('q18'),
     'q19-has-test':           q19val,
-    'q20-test-taken':         getSelectedPill('q20'),
-    'q21-test-result':        getTextInput('#q19-detail input[type=text]'),
+    'q20-test-taken':         getSelectedPill('q20') === 'Others' ? ('Others: ' + getTextInput('#q20-other input')) : getSelectedPill('q20'),
+    'q21-test-result':        getTextInput('#q19-detail input[type=text]:last-of-type'),
     'q22-preference':         q22val === 'Others' ? ('Others: ' + getTextInput('#q22-other input')) : q22val,
     'q23-online-bias':        q23val,
     'q24-bias-reasons':       getRanked('q24'),
     'q25-accept-reasons':     getRanked('q25'),
   };
-}
-
-function encode(data) {
-  return Object.keys(data)
-    .map(function(k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k] || ''); })
-    .join('&');
 }
 
 function submitForm() {
@@ -1965,21 +1975,34 @@ function submitForm() {
 
   var data = collectFormData();
 
-  /* Show success screen immediately — never redirect away from this page */
+  // Show thank-you immediately — never redirect
   showSuccess();
 
-  /* POST to Netlify Forms silently in the background */
-  fetch(window.location.pathname, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: encode(data)
-  })
-  .then(function(r) { console.log('[Survey] Submitted to Netlify Forms, status:', r.status); })
-  .catch(function(e) { console.warn('[Survey] Background POST error:', e); });
+  if (!SCRIPT_URL) {
+    console.warn('[Survey] No SCRIPT_URL configured.');
+    return;
+  }
+
+  // Send via GET with URL params — works reliably with Google Apps Script
+  // (no CORS issues, no preflight, no JSON body parsing required)
+  var params = Object.keys(data).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(data[k] || '');
+  }).join('&');
+
+  var url = SCRIPT_URL + '?action=submit&' + params;
+
+  fetch(url, { method: 'GET' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { console.log('[Survey] Saved to Google Sheets:', res.status); })
+    .catch(function(e) {
+      // Fallback: use an image ping which always works cross-origin
+      console.warn('[Survey] fetch failed, trying image fallback:', e);
+      new Image().src = url;
+    });
 }
 
 function showSuccess() {
-  var participantName = window._consentName || 'Participant';
+  var name = window._consentName || 'Participant';
   var dateStr = window._consentDate
     ? new Date(window._consentDate).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
     : new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
@@ -1987,12 +2010,14 @@ function showSuccess() {
   var ns = document.getElementById('success-name');
   var nc = document.getElementById('success-name-copy');
   var nd = document.getElementById('success-date');
-  if (ns) ns.textContent = participantName;
-  if (nc) nc.textContent = participantName;
+  if (ns) ns.textContent = name;
+  if (nc) nc.textContent = name;
   if (nd) nd.textContent = dateStr;
 
-  document.getElementById('form-main').style.display    = 'none';
-  document.getElementById('success-screen').style.display = 'block';
+  var main = document.getElementById('form-main');
+  var succ = document.getElementById('success-screen');
+  if (main) main.style.display = 'none';
+  if (succ) succ.style.display = 'block';
 
   var pFill = document.getElementById('progress-fill');
   var pPct  = document.getElementById('progress-pct');
@@ -2000,9 +2025,8 @@ function showSuccess() {
   if (pFill) pFill.style.width = '100%';
   if (pPct)  pPct.textContent  = '100%';
   if (pSec)  pSec.textContent  = 'Survey Complete';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
-
 </script>
 </body>
 </html>

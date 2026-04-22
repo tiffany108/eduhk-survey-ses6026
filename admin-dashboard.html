@@ -3,1414 +3,491 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard — EdUHK Survey</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Admin Dashboard — EdUHK SES6026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root {
-  --navy:      #0d1b2a;
-  --navy-mid:  #162032;
-  --navy-soft: #1e2f45;
-  --gold:      #b8963e;
-  --gold-light:#d4b06a;
-  --gold-dim:  rgba(184,150,62,0.15);
-  --cream:     #f8f5f0;
-  --cream-dark:#f0ece4;
-  --white:     #ffffff;
-  --ink:       #1a1a1a;
-  --ink-mid:   #3d3d3d;
-  --ink-soft:  #6b6b6b;
-  --rule:      #e4dfd7;
-  --green:     #27ae60;
-  --sidebar-w: 240px;
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body:    'Source Sans 3', 'Helvetica Neue', sans-serif;
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-  --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0d1b2a;--navy2:#162032;--gold:#b8963e;--gold2:#d4b06a;
+  --cream:#f8f5f0;--cream2:#f0ece4;--white:#fff;
+  --ink:#1a1a1a;--ink2:#3d3d3d;--ink3:#6b6b6b;
+  --rule:#e4dfd7;--green:#27ae60;--blue:#2980b9;
+  --fd:'Playfair Display',Georgia,serif;
+  --fb:'Source Sans 3','Helvetica Neue',sans-serif;
+  --sw:220px;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
-body {
-  font-family: var(--font-body);
-  background: var(--cream);
-  color: var(--ink);
-  min-height: 100vh;
-  display: flex;
-  -webkit-font-smoothing: antialiased;
-  font-size: 14px;
-}
-
-/* ── SIDEBAR ── */
-.sidebar {
-  width: var(--sidebar-w);
-  background: var(--navy);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  z-index: 100;
-  overflow: hidden;
-}
-.sidebar::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
-  background-size: 32px 32px;
-  pointer-events: none;
-}
-.sidebar-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
-
-.sidebar-logo {
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-.sidebar-logo-tag {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 6px;
-}
-.sidebar-logo-name {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: 600;
-  font-style: italic;
-  color: rgba(255,255,255,0.85);
-  line-height: 1.3;
-}
-
-/* Gold accent line */
-.sidebar-gold { height: 1px; background: linear-gradient(90deg, var(--gold), transparent); margin: 0; }
-
-.sidebar-nav {
-  padding: 20px 0;
-  flex: 1;
-}
-.nav-section-label {
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.2);
-  padding: 0 20px;
-  margin: 16px 0 8px;
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  font-size: 13px;
-  color: rgba(255,255,255,0.5);
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  transition: all 0.15s;
-  text-decoration: none;
-  user-select: none;
-}
-.nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
-.nav-item.active {
-  color: var(--gold-light);
-  background: rgba(184,150,62,0.08);
-  border-left-color: var(--gold);
-}
-.nav-icon { font-size: 14px; width: 18px; text-align: center; }
-
-.sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.07);
-}
-.sidebar-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.user-avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  background: var(--gold-dim);
-  border: 1px solid rgba(184,150,62,0.3);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-  color: var(--gold-light);
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.user-name { font-size: 12.5px; color: rgba(255,255,255,0.6); font-weight: 500; }
-.user-role { font-size: 10.5px; color: rgba(255,255,255,0.25); }
-.btn-signout {
-  width: 100%;
-  padding: 8px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 11.5px;
-  color: rgba(255,255,255,0.35);
-  cursor: pointer;
-  letter-spacing: 0.5px;
-  transition: all 0.15s;
-}
-.btn-signout:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
-
-/* ── MAIN AREA ── */
-.main {
-  margin-left: var(--sidebar-w);
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ── TOPBAR ── */
-.topbar {
-  background: var(--white);
-  border-bottom: 1px solid var(--rule);
-  padding: 0 36px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-.topbar-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--navy);
-}
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.topbar-date {
-  font-size: 12px;
-  color: var(--ink-soft);
-}
-
-.btn-export {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 20px;
-  background: var(--navy);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(13,27,42,0.2);
-}
-.btn-export:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(13,27,42,0.3); }
-.btn-export-gold {
-  background: var(--gold);
-  color: var(--navy);
-  box-shadow: 0 2px 8px rgba(184,150,62,0.25);
-}
-.btn-export-gold:hover { background: var(--gold-light); box-shadow: 0 4px 16px rgba(184,150,62,0.35); }
-
-/* ── PAGE CONTENT ── */
-.page-content {
-  padding: 32px 36px 48px;
-  flex: 1;
-}
-
-.page-section {
-  display: none;
-}
-.page-section.active { display: block; }
-
-/* ── STAT CARDS ── */
-.stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 28px;
-}
-.stat-card {
-  background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 20px 22px;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-.stat-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--rule);
-}
-.stat-card.accent::after { background: var(--gold); }
-.stat-card.green::after  { background: var(--green); }
-.stat-card.navy::after   { background: var(--navy); }
-.stat-card.blue::after   { background: #2980b9; }
-
-.stat-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  margin-bottom: 8px;
-}
-.stat-value {
-  font-family: var(--font-display);
-  font-size: 36px;
-  font-weight: 600;
-  color: var(--navy);
-  line-height: 1;
-  margin-bottom: 6px;
-}
-.stat-sub {
-  font-size: 12px;
-  color: var(--ink-soft);
-}
-.stat-change {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--green);
-}
-
-/* ── CHART GRID ── */
-.chart-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 28px;
-}
-.chart-card {
-  background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: 22px 24px;
-  box-shadow: var(--shadow-sm);
-}
-.chart-card.full { grid-column: 1 / -1; }
-.chart-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-.chart-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
-  letter-spacing: 0.2px;
-}
-.chart-sub {
-  font-size: 11.5px;
-  color: var(--ink-soft);
-  margin-top: 2px;
-}
-.chart-tag {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  background: var(--gold-dim);
-  padding: 3px 9px;
-  border-radius: 2px;
-}
-
-/* SVG Bar chart */
-.bar-chart { width: 100%; overflow: visible; }
-.bar-group { cursor: default; }
-.bar-rect {
-  transition: opacity 0.15s;
-  rx: 2;
-}
-.bar-group:hover .bar-rect { opacity: 0.8; }
-.bar-label { font-family: var(--font-body); font-size: 10px; fill: var(--ink-soft); }
-.bar-value { font-family: var(--font-body); font-size: 10px; font-weight: 600; fill: var(--navy); }
-
-/* Donut chart */
-.donut-wrap { display: flex; align-items: center; gap: 24px; }
-.donut-svg { flex-shrink: 0; }
-.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-.legend-item { display: flex; align-items: center; gap: 8px; }
-.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-.legend-label { font-size: 12px; color: var(--ink-mid); flex: 1; }
-.legend-pct { font-size: 12px; font-weight: 600; color: var(--navy); }
-
-/* Likert distribution bars */
-.likert-dist { display: flex; flex-direction: column; gap: 10px; }
-.dist-row { display: flex; align-items: center; gap: 10px; }
-.dist-num { font-size: 12px; font-weight: 700; color: var(--navy); width: 16px; text-align: center; flex-shrink: 0; }
-.dist-bar-wrap { flex: 1; background: var(--cream); border-radius: 2px; height: 22px; overflow: hidden; }
-.dist-bar-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
-  display: flex; align-items: center; padding: 0 8px;
-}
-.dist-bar-label { font-size: 10.5px; font-weight: 600; color: #fff; white-space: nowrap; }
-.dist-count { font-size: 11.5px; color: var(--ink-soft); width: 48px; text-align: right; flex-shrink: 0; }
-
-/* ── RESPONSE TABLE ── */
-.table-card {
-  background: var(--white);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  margin-bottom: 28px;
-}
-.table-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--rule);
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.table-title {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--navy);
-}
-.table-controls { display: flex; align-items: center; gap: 10px; }
-.search-box {
-  padding: 7px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  color: var(--ink);
-  background: var(--cream);
-  outline: none;
-  width: 200px;
-  transition: border-color 0.2s;
-}
-.search-box:focus { border-color: var(--gold); background: var(--white); }
-.filter-select {
-  padding: 7px 10px;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  color: var(--ink-mid);
-  background: var(--cream);
-  outline: none;
-  cursor: pointer;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12.5px;
-}
-thead th {
-  background: var(--cream);
-  padding: 10px 16px;
-  text-align: left;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  border-bottom: 1px solid var(--rule);
-  white-space: nowrap;
-  cursor: pointer;
-  user-select: none;
-}
-thead th:hover { color: var(--navy); }
-thead th.sorted { color: var(--gold); }
-tbody tr {
-  border-bottom: 1px solid var(--rule);
-  transition: background 0.1s;
-}
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--cream); }
-tbody td { padding: 11px 16px; color: var(--ink-mid); }
-tbody td:first-child { color: var(--navy); font-weight: 600; font-family: var(--font-display); font-style: italic; }
-
-.badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 2px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-.badge-green { background: rgba(39,174,96,0.1); color: #1e8449; }
-.badge-navy  { background: rgba(13,27,42,0.08); color: var(--navy); }
-.badge-gold  { background: var(--gold-dim); color: #8a6d10; }
-
-.table-pagination {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  border-top: 1px solid var(--rule);
-  font-size: 12px;
-  color: var(--ink-soft);
-}
-.pagination-btns { display: flex; gap: 4px; }
-.pg-btn {
-  width: 28px; height: 28px;
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  background: var(--white);
-  font-size: 12px;
-  color: var(--ink-mid);
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.15s;
-}
-.pg-btn:hover { background: var(--cream-dark); border-color: var(--gold-light); }
-.pg-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-
-/* ── SECTION TITLE ── */
-.section-hd {
-  display: flex;
-  align-items: flex-end;
-  gap: 16px;
-  margin-bottom: 22px;
-}
-.section-hd-num {
-  font-family: var(--font-display);
-  font-size: 40px;
-  font-weight: 400;
-  color: var(--rule);
-  line-height: 1;
-  flex-shrink: 0;
-}
-.section-hd-info { border-bottom: 1px solid var(--rule); padding-bottom: 8px; flex: 1; }
-.section-hd-label {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 2.5px;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: 3px;
-}
-.section-hd-title {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--navy);
-}
-
-/* ── TOAST ── */
-.toast {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  background: var(--navy);
-  color: #fff;
-  padding: 13px 20px;
-  border-radius: 4px;
-  font-size: 13px;
-  box-shadow: var(--shadow-md);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-  z-index: 1000;
-  border-left: 3px solid var(--gold);
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-
-/* Responsive */
-@media (max-width: 900px) {
-  .sidebar { transform: translateX(-100%); }
-  .main { margin-left: 0; }
-  .stat-grid { grid-template-columns: 1fr 1fr; }
-  .chart-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 600px) {
-  .stat-grid { grid-template-columns: 1fr; }
-  .page-content { padding: 20px; }
-  .topbar { padding: 0 20px; }
-}
-
-/* ── EXPORT DROPDOWN ── */
-.exp-wrap { position: relative; }
-.btn-exp-caret { font-size: 8px; margin-left: 4px; transition: transform .2s; }
-.exp-dropdown {
-  position: absolute; right: 0; top: calc(100% + 6px);
-  background: #fff; border: 1px solid var(--rule);
-  border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,.14);
-  min-width: 230px; z-index: 500; display: none;
-}
-.exp-dropdown.open { display: block; }
-.exp-drop-hdr {
-  padding: 9px 14px; font-size: 9px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--ink-soft); border-bottom: 1px solid var(--rule);
-}
-.exp-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 14px; cursor: pointer;
-  transition: background .15s; border-bottom: 1px solid var(--rule);
-}
-.exp-item:last-child { border-bottom: none; }
-.exp-item:hover { background: var(--cream); }
-.exp-icon {
-  width: 32px; height: 32px; border-radius: 4px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; flex-shrink: 0;
-}
-.exp-icon.xl { background: #1d6f42; color: #fff; }
-.exp-icon.cs { background: var(--navy); color: #fff; }
-.exp-item-info { flex: 1; }
-.exp-item-name { font-size: 12.5px; font-weight: 600; color: var(--navy); }
-.exp-item-desc { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
-
+body{font-family:var(--fb);background:var(--cream);color:var(--ink);-webkit-font-smoothing:antialiased;display:flex;min-height:100vh}
+.sidebar{width:var(--sw);min-width:var(--sw);background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto}
+.sb-logo{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-tag{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.sb-name{font-family:var(--fd);font-size:13.5px;font-weight:600;font-style:italic;color:rgba(255,255,255,.85);line-height:1.35}
+.sb-gold{height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+.sb-nav{padding:14px 0;flex:1}
+.sb-sec{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.2);padding:10px 18px 5px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 18px;font-size:12.5px;color:rgba(255,255,255,.5);cursor:pointer;border-left:3px solid transparent;transition:all .15s;user-select:none}
+.nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.04)}
+.nav-item.active{color:var(--gold2);background:rgba(184,150,62,.09);border-left-color:var(--gold)}
+.nav-icon{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.sb-foot{padding:14px 18px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-user{display:flex;align-items:center;gap:9px;margin-bottom:10px}
+.sb-av{width:30px;height:30px;border-radius:50%;background:rgba(184,150,62,.15);border:1px solid rgba(184,150,62,.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold2);font-weight:700;flex-shrink:0}
+.sb-uname{font-size:12px;color:rgba(255,255,255,.55);font-weight:500}
+.sb-urole{font-size:10.5px;color:rgba(255,255,255,.25)}
+.btn-so{width:100%;padding:7px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:3px;font-family:var(--fb);font-size:11px;color:rgba(255,255,255,.3);cursor:pointer;transition:all .15s}
+.btn-so:hover{color:rgba(255,255,255,.6);background:rgba(255,255,255,.08)}
+.main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--white);border-bottom:1px solid var(--rule);padding:0 28px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-family:var(--fd);font-size:17px;font-weight:600;color:var(--navy)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-date{font-size:11.5px;color:var(--ink3)}
+.btn-refresh{padding:6px 14px;background:var(--cream);border:1px solid var(--rule);border-radius:3px;font-size:11.5px;color:var(--ink2);cursor:pointer;font-family:var(--fb);transition:all .15s}
+.btn-refresh:hover{background:#e8f5e9;border-color:#a5d6a7;color:#1b5e20}
+.btn-exp{padding:6px 16px;background:var(--gold);color:var(--navy);border:none;border-radius:3px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:var(--fb)}
+.banner{padding:8px 28px;font-size:12px;display:flex;align-items:center;gap:8px;min-height:36px}
+.page-content{padding:24px 28px 48px;flex:1}
+.section{display:none}
+.section.active{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:var(--white);border:1px solid var(--rule);border-radius:4px;padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.stat-card.c-gold::after{background:var(--gold)}
+.stat-card.c-green::after{background:var(--green)}
+.stat-card.c-navy::after{background:var(--navy)}
+.stat-card.c-blue::after{background:var(--blue)}
+.s-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.s-val{font-family:var(--fd);font-size:34px;font-weight:600;color:var(--navy);line-height:1;margin-bottom:5px}
+.s-sub{font-size:11.5px;color:var(--ink3)}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.chart-grid.one{grid-template-columns:1fr}
+.chart-card{background:var(--white);border:1px solid var(--rule);border-radius:4px;padding:18px 20px}
+.chart-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.chart-title{font-size:12.5px;font-weight:600;color:var(--navy)}
+.chart-sub{font-size:11px;color:var(--ink3);margin-top:2px}
+.chart-tag{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:rgba(184,150,62,.1);padding:2px 8px;border-radius:2px;white-space:nowrap}
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:6px}
+.legend-item{display:flex;align-items:center;gap:7px}
+.legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.legend-label{font-size:11.5px;color:var(--ink2);flex:1}
+.legend-pct{font-size:11.5px;font-weight:600;color:var(--navy)}
+.lk-dist{display:flex;flex-direction:column;gap:7px}
+.lk-row{display:flex;align-items:center;gap:8px}
+.lk-num{font-size:11px;font-weight:700;color:var(--navy);width:14px;text-align:center;flex-shrink:0}
+.lk-bar-wrap{flex:1;background:var(--cream2);border-radius:2px;height:18px;overflow:hidden}
+.lk-bar{height:100%;border-radius:2px;display:flex;align-items:center;padding:0 6px}
+.lk-bar-lbl{font-size:10px;font-weight:600;color:#fff;white-space:nowrap}
+.lk-count{font-size:11px;color:var(--ink3);width:52px;text-align:right;flex-shrink:0}
+.tbl-card{background:var(--white);border:1px solid var(--rule);border-radius:4px;overflow:hidden;margin-bottom:20px}
+.tbl-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--rule);flex-wrap:wrap;gap:10px}
+.tbl-title{font-size:12.5px;font-weight:600;color:var(--navy)}
+.search-input{padding:6px 10px;border:1px solid var(--rule);border-radius:3px;font-size:12px;color:var(--ink);background:var(--cream);outline:none;width:200px;font-family:var(--fb)}
+.search-input:focus{border-color:var(--gold)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--cream);padding:8px 14px;text-align:left;font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--rule);cursor:pointer;white-space:nowrap}
+thead th:hover{color:var(--navy)}
+tbody tr{border-bottom:1px solid var(--rule);cursor:pointer;transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--cream)}
+tbody td{padding:9px 14px;color:var(--ink2)}
+tbody td:first-child{color:var(--navy);font-weight:600;font-family:var(--fd);font-style:italic}
+.badge{display:inline-block;padding:2px 7px;border-radius:2px;font-size:10px;font-weight:600}
+.badge-green{background:rgba(39,174,96,.1);color:#1b5e20}
+.badge-navy{background:rgba(13,27,42,.08);color:var(--navy)}
+.tbl-foot{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-top:1px solid var(--rule);font-size:11.5px;color:var(--ink3)}
+.pg-btn{width:26px;height:26px;border:1px solid var(--rule);border-radius:3px;background:var(--white);font-size:11px;color:var(--ink2);cursor:pointer;transition:all .15s}
+.pg-btn:hover{background:var(--cream2)}
+.pg-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+.sec-hd{display:flex;align-items:flex-end;gap:14px;margin-bottom:20px}
+.sec-num{font-family:var(--fd);font-size:42px;font-weight:400;color:var(--rule);line-height:1;flex-shrink:0}
+.sec-info{border-bottom:1px solid var(--rule);padding-bottom:7px;flex:1}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.sec-ttl{font-family:var(--fd);font-size:17px;font-weight:600;color:var(--navy)}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(13,27,42,.55);z-index:999;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--white);border-radius:4px;max-width:520px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column}
+.modal-head{background:var(--navy);padding:18px 22px;display:flex;align-items:center;justify-content:space-between}
+.modal-eyebrow{font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.modal-ttl{font-family:var(--fd);font-size:15px;font-weight:600;font-style:italic;color:#fff}
+.modal-close{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);width:30px;height:30px;border-radius:3px;cursor:pointer;font-size:16px}
+.modal-body{overflow-y:auto;padding:18px 22px;flex:1}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:4px;font-size:12.5px;box-shadow:0 4px 20px rgba(0,0,0,.2);transform:translateY(80px);opacity:0;transition:all .3s ease;z-index:9999;border-left:3px solid var(--gold)}
+.toast.show{transform:translateY(0);opacity:1}
+.config-card{background:var(--white);border:1px solid var(--rule);border-top:3px solid var(--gold);border-radius:4px;padding:22px 24px;max-width:600px;margin-bottom:16px}
+.field-lbl{display:block;font-size:9.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px}
+.field-input{width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:4px;font-family:monospace;font-size:12.5px;color:var(--ink);background:var(--cream);outline:none;margin-bottom:14px;transition:border-color .2s}
+.field-input:focus{border-color:var(--gold);background:#fff}
+.btn-save{padding:10px 24px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-family:var(--fb);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer}
+.btn-save:hover{background:var(--navy2)}
+.btn-clear-c{padding:10px 16px;background:transparent;color:var(--ink3);border:1px solid var(--rule);border-radius:4px;font-family:var(--fb);font-size:12px;cursor:pointer}
+.info-card{background:var(--white);border:1px solid var(--rule);border-radius:4px;padding:20px 24px;max-width:600px}
+@media(max-width:900px){.stat-grid{grid-template-columns:1fr 1fr}.chart-grid{grid-template-columns:1fr}.sidebar{display:none}.main{margin-left:0}}
 </style>
-
 </head>
 <body>
 
-<!-- ══ SIDEBAR ══ -->
 <nav class="sidebar">
-  <div class="sidebar-inner">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-tag">EdUHK · SES6026</div>
-      <div class="sidebar-logo-name">Research Survey<br>Administration</div>
+  <div class="sb-logo">
+    <div class="sb-tag">EdUHK · SES6026</div>
+    <div class="sb-name">Research Survey<br>Administration</div>
+  </div>
+  <div class="sb-gold"></div>
+  <div class="sb-nav">
+    <div class="sb-sec">Analytics</div>
+    <div class="nav-item active" id="nav-overview" onclick="switchTab('overview',this)"><span class="nav-icon">◈</span> Overview</div>
+    <div class="nav-item" id="nav-responses" onclick="switchTab('responses',this)"><span class="nav-icon">≡</span> All Responses</div>
+    <div class="nav-item" id="nav-demographics" onclick="switchTab('demographics',this)"><span class="nav-icon">◑</span> Demographics</div>
+    <div class="nav-item" id="nav-translation" onclick="switchTab('translation',this)"><span class="nav-icon">⟳</span> Translation Tools</div>
+    <div class="sb-sec">Export</div>
+    <div class="nav-item" onclick="expAll()"><span class="nav-icon">↓</span> Full Excel Report</div>
+    <div class="nav-item" onclick="expStats()"><span class="nav-icon">↓</span> Summary Statistics</div>
+    <div class="nav-item" onclick="expFiltered()"><span class="nav-icon">↓</span> Filtered View</div>
+    <div class="nav-item" onclick="expCSV()"><span class="nav-icon">↓</span> Raw CSV</div>
+    <div class="sb-sec">Settings</div>
+    <div class="nav-item" onclick="window.location.href='index.html'"><span class="nav-icon">←</span> View Survey</div>
+    <div class="nav-item" id="nav-settings" onclick="switchTab('settings',this)"><span class="nav-icon">⚙</span> Data Management</div>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">A</div>
+      <div><div class="sb-uname">Administrator</div><div class="sb-urole">Principal Investigator</div></div>
     </div>
-    <div class="sidebar-gold"></div>
-    <div class="sidebar-nav">
-      <div class="nav-section-label">Analytics</div>
-      <div class="nav-item active" id="nav-overview" onclick="showSection('overview',this)"><span class="nav-icon">◈</span> Overview</div>
-      <div class="nav-item" id="nav-responses" onclick="showSection('responses',this)"><span class="nav-icon">≡</span> All Responses</div>
-      <div class="nav-item" id="nav-demographics" onclick="showSection('demographics',this)"><span class="nav-icon">◑</span> Demographics</div>
-      <div class="nav-item" id="nav-translation" onclick="showSection('translation',this)"><span class="nav-icon">⟳</span> Translation Tools</div>
-      <div class="nav-section-label">Export</div>
-      <div class="nav-item" onclick="expAll()"><span class="nav-icon">↓</span> Full Excel Report</div>
-      <div class="nav-item" onclick="expStats()"><span class="nav-icon">↓</span> Summary Statistics</div>
-      <div class="nav-item" onclick="expFiltered()"><span class="nav-icon">↓</span> Filtered View</div>
-      <div class="nav-item" onclick="expCSV()"><span class="nav-icon">↓</span> Raw CSV</div>
-      <div class="nav-section-label">Settings</div>
-      <div class="nav-item" onclick="window.location.href='index.html'"><span class="nav-icon">←</span> View Survey</div>
-      <div class="nav-item" id="nav-admin" onclick="showSection('admin',this)"><span class="nav-icon">⚙</span> Data Management</div>
-    </div>
-    <div class="sidebar-footer">
-      <div class="sidebar-user">
-        <div class="user-avatar">A</div>
-        <div><div class="user-name">Administrator</div><div class="user-role">Principal Investigator</div></div>
-      </div>
-      <button class="btn-signout" onclick="signOut()">Sign Out</button>
-    </div>
+    <button class="btn-so" onclick="signOut()">Sign Out</button>
   </div>
 </nav>
 
-<!-- ══ MAIN ══ -->
 <div class="main">
   <div class="topbar">
     <div class="topbar-title" id="topbar-title">Overview</div>
     <div class="topbar-right">
       <div class="topbar-date" id="topbar-date"></div>
-      <button onclick="refreshData()" style="padding:7px 16px;background:var(--cream);border:1px solid var(--rule);border-radius:4px;font-family:var(--font-body);font-size:12px;color:var(--ink-mid);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#e8f5e9';this.style.borderColor='#a5d6a7'" onmouseout="this.style.background='var(--cream)';this.style.borderColor='var(--rule)'">⟳ Refresh Data</button>
-      <div class="exp-wrap">
-        <button class="btn-export btn-export-gold" onclick="toggleDrop()">↓ &nbsp;Export <span class="btn-exp-caret" id="exp-caret">▾</span></button>
-        <div class="exp-dropdown" id="exp-dropdown">
-          <div class="exp-drop-hdr">Choose Export Format</div>
-          <div class="exp-item" onclick="expAll();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Full Excel Report</div><div class="exp-item-desc">3 sheets: responses, stats &amp; consent log</div></div></div>
-          <div class="exp-item" onclick="expStats();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Summary Statistics Only</div><div class="exp-item-desc">All aggregated counts and percentages</div></div></div>
-          <div class="exp-item" onclick="expFiltered();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Filtered View</div><div class="exp-item-desc">Current search / filter results only</div></div></div>
-          <div class="exp-item" onclick="expCSV();closeDrop()"><div class="exp-icon cs">CSV</div><div class="exp-item-info"><div class="exp-item-name">Raw CSV</div><div class="exp-item-desc">Plain comma-separated for SPSS / R</div></div></div>
-        </div>
-      </div>
+      <button class="btn-refresh" onclick="loadData()">⟳ Refresh</button>
+      <button class="btn-exp" onclick="expAll()">↓ Export Excel</button>
     </div>
   </div>
 
-  <!-- Status Banner -->
-  <div id="data-source-banner" style="padding:8px 36px;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e0e0e0;"></div>
+  <div id="banner" class="banner" style="background:#fff8e1;border-bottom:1px solid #ffe082;color:#5d4e00;">
+    ⚠ <strong>Setup required</strong> — Go to ⚙ Data Management and enter your Google Apps Script URL.
+  </div>
 
   <div class="page-content">
 
-    <!-- ══ OVERVIEW ══ -->
-    <div class="page-section active" id="sec-overview" style="display:block">
+    <div id="tab-overview" class="section active">
       <div class="stat-grid">
-        <div class="stat-card accent">
-          <div class="stat-label">Total Responses</div>
-          <div class="stat-value" id="stat-total">—</div>
-          <div class="stat-sub" id="stat-total-sub">&nbsp;</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-label">Consented</div>
-          <div class="stat-value" id="stat-consented">—</div>
-          <div class="stat-sub" id="stat-consent-rate">100% consent rate</div>
-        </div>
-        <div class="stat-card navy">
-          <div class="stat-label">Avg. Tool Usage</div>
-          <div class="stat-value" id="stat-avg-usage">—</div>
-          <div class="stat-sub">Out of 7-point scale (Q13)</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-label">Avg. Understanding</div>
-          <div class="stat-value" id="stat-avg-understand">—</div>
-          <div class="stat-sub">Out of 7-point scale (Q17)</div>
-        </div>
+        <div class="stat-card c-gold"><div class="s-lbl">Total Responses</div><div class="s-val" id="st-total">—</div><div class="s-sub" id="st-sub">No submissions yet</div></div>
+        <div class="stat-card c-green"><div class="s-lbl">Consented</div><div class="s-val" id="st-consent">—</div><div class="s-sub">100% consent rate</div></div>
+        <div class="stat-card c-navy"><div class="s-lbl">Avg. Tool Usage</div><div class="s-val" id="st-usage">—</div><div class="s-sub">Q13 · 7-point scale</div></div>
+        <div class="stat-card c-blue"><div class="s-lbl">Avg. Understanding</div><div class="s-val" id="st-under">—</div><div class="s-sub">Q17 · 7-point scale</div></div>
       </div>
-
       <div class="chart-grid">
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Mother Tongue</div><div class="chart-sub">Distribution of participants</div></div><div class="chart-tag">Q1</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="tongue-donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
-            <div class="donut-legend" id="tongue-donut-legend"></div>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Age Distribution</div><div class="chart-sub">Participant age groups</div></div><div class="chart-tag">Q2</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="age-donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
-            <div class="donut-legend" id="age-donut-legend"></div>
-          </div>
-        </div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Mother Tongue</div><div class="chart-sub">Q1 distribution</div></div><span class="chart-tag">Q1</span></div><div class="donut-wrap"><svg id="c-tongue" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-tongue"></div></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Age Distribution</div><div class="chart-sub">Q2 distribution</div></div><span class="chart-tag">Q2</span></div><div class="donut-wrap"><svg id="c-age" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-age"></div></div></div>
       </div>
-
       <div class="chart-grid">
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Translation Tool Usage Frequency</div><div class="chart-sub">1 = Never · 7 = Always</div></div><div class="chart-tag">Q13</div></div>
-          <div class="likert-dist" id="likert-usage"></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Content Understanding Level</div><div class="chart-sub">1 = None · 7 = Full</div></div><div class="chart-tag">Q17</div></div>
-          <div class="likert-dist" id="likert-understand"></div>
-        </div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Tool Usage Frequency</div><div class="chart-sub">1=Never · 7=Always</div></div><span class="chart-tag">Q13</span></div><div class="lk-dist" id="lk-usage"></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Content Understanding</div><div class="chart-sub">1=None · 7=Full</div></div><span class="chart-tag">Q17</span></div><div class="lk-dist" id="lk-under"></div></div>
       </div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">University Affiliation</div></div><span class="chart-tag">Q5</span></div><svg id="b-uni" width="100%" height="140"></svg></div></div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Most Used Translation Tool</div></div><span class="chart-tag">Q15</span></div><svg id="b-tool" width="100%" height="140"></svg></div></div>
+    </div>
 
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">University Affiliation</div><div class="chart-sub">Participant institutions</div></div><div class="chart-tag">Q5</div></div>
-          <svg class="bar-chart" id="uni-chart" height="160"></svg>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Most Used Translation Tool</div><div class="chart-sub">Among those who use tools (ratings 2–7)</div></div><div class="chart-tag">Q15</div></div>
-          <svg class="bar-chart" id="tool-chart" height="140"></svg>
-        </div>
-      </div>
-    </div><!-- /overview -->
-
-    <!-- ══ RESPONSES ══ -->
-    <div class="page-section" id="sec-responses" style="display:none">
-      <div class="section-hd">
-        <div class="section-hd-num" id="resp-count">—</div>
-        <div class="section-hd-info">
-          <div class="section-hd-label">Complete Survey</div>
-          <div class="section-hd-title">All Participant Responses</div>
-        </div>
-      </div>
-      <div class="table-card">
-        <div class="table-header">
-          <div class="table-title">Response Records</div>
-          <div class="table-controls">
-            <input class="search-box" id="search-box" type="text" placeholder="Search by name or university…" oninput="filterTable()">
-            <select class="filter-select" id="filter-uni" onchange="filterTable()">
-              <option value="">All Universities</option>
-              <option>EdUHK</option><option>HKU</option><option>CUHK</option>
-              <option>HKUST</option><option>PolyU</option><option>CityU</option>
-              <option>HKBU</option><option>LU</option>
-            </select>
-            <button class="btn-export" onclick="exportTableXLSX()">↓ Export</button>
-          </div>
+    <div id="tab-responses" class="section">
+      <div class="sec-hd"><div class="sec-num" id="resp-cnt">—</div><div class="sec-info"><div class="sec-lbl">Complete Survey</div><div class="sec-ttl">All Participant Responses</div></div></div>
+      <div class="tbl-card">
+        <div class="tbl-hd">
+          <div class="tbl-title">Response Records <span style="font-weight:400;color:var(--ink3);font-size:11px">(click row for detail)</span></div>
+          <input class="search-input" id="srch" type="text" placeholder="Search name / university…" oninput="filterTbl()">
         </div>
         <div style="overflow-x:auto">
-          <table id="responses-table">
-            <thead>
-              <tr>
-                <th onclick="sortTable(0)">Participant</th>
-                <th onclick="sortTable(1)">Date</th>
-                <th onclick="sortTable(2)">University</th>
-                <th onclick="sortTable(3)">Degree</th>
-                <th onclick="sortTable(4)">Mother Tongue</th>
-                <th onclick="sortTable(5)">Tool Usage</th>
-                <th onclick="sortTable(6)">Understanding</th>
-                <th onclick="sortTable(7)">Mode</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
+          <table>
+            <thead><tr>
+              <th onclick="sortTbl(0)">Participant</th><th onclick="sortTbl(1)">Date</th>
+              <th onclick="sortTbl(2)">University</th><th onclick="sortTbl(3)">Degree</th>
+              <th onclick="sortTbl(4)">Mother Tongue</th><th onclick="sortTbl(5)">Tool Usage</th>
+              <th onclick="sortTbl(6)">Understanding</th><th onclick="sortTbl(7)">Mode</th>
+              <th>Status</th>
+            </tr></thead>
+            <tbody id="tbl-body"></tbody>
           </table>
         </div>
-        <div class="table-pagination">
+        <div class="tbl-foot">
           <div id="pg-info">—</div>
-          <div class="pagination-btns" id="pg-btns"></div>
+          <div style="display:flex;gap:4px" id="pg-btns"></div>
         </div>
       </div>
-    </div><!-- /responses -->
-
-    <!-- ══ DEMOGRAPHICS ══ -->
-    <div class="page-section" id="sec-demographics" style="display:none">
-      <div class="section-hd">
-        <div class="section-hd-num" id="demo-count">—</div>
-        <div class="section-hd-info">
-          <div class="section-hd-label">Section Analysis</div>
-          <div class="section-hd-title">Demographics Breakdown</div>
-        </div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Gender</div></div><div class="chart-tag">Q3</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="gender-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
-            <div class="donut-legend" id="gender-donut-legend"></div>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Origin</div></div><div class="chart-tag">Q4</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="origin-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
-            <div class="donut-legend" id="origin-donut-legend"></div>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Student Status</div></div><div class="chart-tag">Q6</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="status-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
-            <div class="donut-legend" id="status-donut-legend"></div>
-          </div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Study Mode</div></div><div class="chart-tag">Q11</div></div>
-          <div class="donut-wrap">
-            <svg class="donut-svg" id="mode-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
-            <div class="donut-legend" id="mode-donut-legend"></div>
-          </div>
-        </div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Subject Area</div><div class="chart-sub">Fields of study</div></div><div class="chart-tag">Q9</div></div>
-          <svg class="bar-chart" id="subject-chart" height="140"></svg>
-        </div>
-      </div>
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Mode Preference (if both available)</div><div class="chart-sub">Online vs face-to-face preference</div></div><div class="chart-tag">Q22</div></div>
-          <svg class="bar-chart" id="pref-chart" height="120"></svg>
-        </div>
-      </div>
-    </div><!-- /demographics -->
-
-    <!-- ══ TRANSLATION TOOLS ══ -->
-    <div class="page-section" id="sec-translation" style="display:none">
-      <div class="section-hd">
-        <div class="section-hd-num" id="trans-count">—</div>
-        <div class="section-hd-info">
-          <div class="section-hd-label">Section Three &amp; Four</div>
-          <div class="section-hd-title">Translation Tools &amp; Understanding</div>
-        </div>
-      </div>
-
-      <div class="stat-grid">
-        <div class="stat-card accent">
-          <div class="stat-label">Never Use (Rating 1)</div>
-          <div class="stat-value" id="stat-never">—</div>
-          <div class="stat-sub" id="stat-never-pct">of respondents</div>
-        </div>
-        <div class="stat-card navy">
-          <div class="stat-label">Regular Users (4+)</div>
-          <div class="stat-value" id="stat-regular">—</div>
-          <div class="stat-sub" id="stat-regular-pct">of respondents</div>
-        </div>
-        <div class="stat-card green">
-          <div class="stat-label">Top Tool Used</div>
-          <div class="stat-value" id="stat-top-tool" style="font-size:22px;margin-top:4px">—</div>
-          <div class="stat-sub" id="stat-top-tool-pct">of tool users</div>
-        </div>
-        <div class="stat-card blue">
-          <div class="stat-label">Top Reason (Use)</div>
-          <div class="stat-value" id="stat-top-reason" style="font-size:16px;margin-top:6px">—</div>
-          <div class="stat-sub">Rank #1 most cited</div>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Translation Tool Usage Frequency</div><div class="chart-sub">1 = Never · 7 = Always</div></div><div class="chart-tag">Q13</div></div>
-          <div class="likert-dist" id="likert-usage-2"></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">Content Understanding Level</div><div class="chart-sub">1 = None · 7 = Full</div></div><div class="chart-tag">Q17</div></div>
-          <div class="likert-dist" id="likert-understand-2"></div>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Most Used Translation Tool</div><div class="chart-sub">Among those who use tools (Q13 ≥ 2)</div></div><div class="chart-tag">Q15</div></div>
-          <svg class="bar-chart" id="tool-chart-2" height="140"></svg>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Reasons for NOT Using Translation Tools</div><div class="chart-sub">Top ranked reasons — Q13 = 1 (never use)</div></div><div class="chart-tag">Q14</div></div>
-          <svg class="bar-chart" id="no-reason-chart" height="140"></svg>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Reasons FOR Using Translation Tools</div><div class="chart-sub">Top ranked reasons — Q13 ≥ 2</div></div><div class="chart-tag">Q16</div></div>
-          <svg class="bar-chart" id="use-reason-chart" height="140"></svg>
-        </div>
-      </div>
-
-      <div class="chart-grid">
-        <div class="chart-card full">
-          <div class="chart-header"><div><div class="chart-title">Factors Affecting Understanding of Instructor</div><div class="chart-sub">Top ranked factors cited by participants</div></div><div class="chart-tag">Q18</div></div>
-          <svg class="bar-chart" id="understand-chart" height="140"></svg>
-        </div>
-      </div>
-    </div><!-- /translation -->
-
-    <!-- ══ DATA MANAGEMENT ══ -->
-    <div class="page-section" id="sec-admin" style="display:none">
-      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#5d4e00;line-height:1.7">
-        <strong>⚙ One-time setup required</strong> — Paste your Netlify Site ID and Access Token below, then click <strong>Save &amp; Load Data</strong> to connect this dashboard to your live survey responses.
-      </div>
-      <div class="section-hd">
-        <div class="section-hd-num">⚙</div>
-        <div class="section-hd-info">
-          <div class="section-hd-label">Admin Only</div>
-          <div class="section-hd-title">Netlify Forms Connection</div>
-        </div>
-      </div>
-      <div style="max-width:580px">
-        <div class="chart-card" style="border-top:3px solid var(--gold);margin-bottom:16px">
-          <div class="chart-header"><div><div class="chart-title">Connect to Netlify Forms</div><div class="chart-sub">Enter your credentials to load real survey responses</div></div></div>
-          <p style="font-size:13px;color:var(--ink-mid);margin-bottom:20px;line-height:1.9">
-            <strong>How to get your credentials (one-time setup):</strong><br>
-            1. Go to <a href="https://app.netlify.com" target="_blank" style="color:var(--gold)">app.netlify.com</a> → your site → <strong>Site Settings → General</strong><br>
-            2. Copy the <strong>Site ID</strong> (e.g. <code style="font-size:11px">abc12345-6789-abcd-ef01-234567890abc</code>)<br>
-            3. Go to your <strong>User avatar → User Settings → Applications → New access token</strong><br>
-            4. Give it any name, copy the token, paste both below
-          </p>
-          <div style="margin-bottom:14px">
-            <label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px">Netlify Site ID</label>
-            <input id="input-site-id" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-              style="width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:4px;font-family:monospace;font-size:13px;outline:none;background:var(--cream);color:var(--ink)">
-          </div>
-          <div style="margin-bottom:20px">
-            <label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px">Personal Access Token</label>
-            <input id="input-token" type="password" placeholder="Paste your Netlify personal access token"
-              style="width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:4px;font-family:monospace;font-size:13px;outline:none;background:var(--cream);color:var(--ink)">
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button onclick="saveCredentials()" style="padding:10px 24px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">Save &amp; Load Data</button>
-            <button onclick="clearCredentials()" style="padding:10px 16px;background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:4px;font-family:var(--font-body);font-size:12px;cursor:pointer;">Clear Credentials</button>
-          </div>
-          <div style="margin-top:16px;padding:12px 14px;background:var(--cream);border-radius:4px;font-size:12px;color:var(--ink-soft);display:flex;gap:20px;flex-wrap:wrap">
-            <span>Responses loaded: <strong id="admin-count" style="color:var(--navy)">—</strong></span>
-            <span>Credentials saved: <strong id="creds-status" style="color:var(--navy)">—</strong></span>
-          </div>
-        </div>
-
-        <div class="chart-card">
-          <div class="chart-header"><div><div class="chart-title">How It Works</div></div></div>
-          <div style="font-size:13px;color:var(--ink-mid);line-height:1.9">
-            <div>✓ Survey answers are <strong>POST</strong>ed directly to Netlify's servers when participants submit</div>
-            <div>✓ View raw submissions anytime at <a href="https://app.netlify.com" target="_blank" style="color:var(--gold)">app.netlify.com → Forms</a></div>
-            <div>✓ This dashboard fetches them via the <strong>Netlify API</strong> using your credentials</div>
-            <div>✓ Set up <strong>email alerts</strong> per submission: Netlify → Forms → Settings → Email notifications</div>
-            <div>✓ All Excel &amp; CSV exports use the live Netlify data</div>
-          </div>
-        </div>
-      </div>
-    </div><!-- /admin -->
-
-  </div><!-- /page-content -->
-</div><!-- /main -->
-
-<!-- Detail Modal -->
-<div id="detail-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,42,0.55);z-index:900;align-items:center;justify-content:center;padding:20px">
-  <div style="background:#fff;border-radius:4px;box-shadow:0 16px 64px rgba(0,0,0,0.22);max-width:540px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column">
-    <div style="background:var(--navy);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Response Detail</div>
-        <div style="font-family:var(--font-display);font-size:16px;font-weight:600;font-style:italic;color:#fff">Full Submission Record</div>
-      </div>
-      <button onclick="closeDetail()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">&times;</button>
     </div>
-    <div id="detail-body" style="overflow-y:auto;padding:20px 24px;flex:1"></div>
+
+    <div id="tab-demographics" class="section">
+      <div class="sec-hd"><div class="sec-num" id="demo-cnt">—</div><div class="sec-info"><div class="sec-lbl">Section Analysis</div><div class="sec-ttl">Demographics Breakdown</div></div></div>
+      <div class="chart-grid">
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Gender</div></div><span class="chart-tag">Q3</span></div><div class="donut-wrap"><svg id="c-gender" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-gender"></div></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Origin</div></div><span class="chart-tag">Q4</span></div><div class="donut-wrap"><svg id="c-origin" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-origin"></div></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Student Status</div></div><span class="chart-tag">Q6</span></div><div class="donut-wrap"><svg id="c-status" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-status"></div></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Study Mode</div></div><span class="chart-tag">Q11</span></div><div class="donut-wrap"><svg id="c-mode" width="110" height="110" viewBox="0 0 110 110"></svg><div class="donut-legend" id="l-mode"></div></div></div>
+      </div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Subject Area</div></div><span class="chart-tag">Q9</span></div><svg id="b-subj" width="100%" height="140"></svg></div></div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Mode Preference</div></div><span class="chart-tag">Q22</span></div><svg id="b-pref" width="100%" height="120"></svg></div></div>
+    </div>
+
+    <div id="tab-translation" class="section">
+      <div class="sec-hd"><div class="sec-num" id="trans-cnt">—</div><div class="sec-info"><div class="sec-lbl">Sections 3 &amp; 4</div><div class="sec-ttl">Translation Tools &amp; Understanding</div></div></div>
+      <div class="stat-grid">
+        <div class="stat-card c-gold"><div class="s-lbl">Never Use (Q13=1)</div><div class="s-val" id="st-never">—</div><div class="s-sub" id="st-never-s">of respondents</div></div>
+        <div class="stat-card c-navy"><div class="s-lbl">Regular Users (4+)</div><div class="s-val" id="st-reg">—</div><div class="s-sub" id="st-reg-s">of respondents</div></div>
+        <div class="stat-card c-green"><div class="s-lbl">Top Tool Used</div><div class="s-val" id="st-tool" style="font-size:18px;margin-top:6px">—</div><div class="s-sub" id="st-tool-s">—</div></div>
+        <div class="stat-card c-blue"><div class="s-lbl">Top Reason (Use)</div><div class="s-val" id="st-reason" style="font-size:15px;margin-top:6px">—</div><div class="s-sub">Rank #1 cited</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Tool Usage Frequency</div></div><span class="chart-tag">Q13</span></div><div class="lk-dist" id="lk-usage2"></div></div>
+        <div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Content Understanding</div></div><span class="chart-tag">Q17</span></div><div class="lk-dist" id="lk-under2"></div></div>
+      </div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Reasons NOT Using Tools</div></div><span class="chart-tag">Q14</span></div><svg id="b-noreason" width="100%" height="140"></svg></div></div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Reasons FOR Using Tools</div></div><span class="chart-tag">Q16</span></div><svg id="b-usereason" width="100%" height="140"></svg></div></div>
+      <div class="chart-grid one"><div class="chart-card"><div class="chart-hd"><div><div class="chart-title">Factors Affecting Understanding</div></div><span class="chart-tag">Q18</span></div><svg id="b-understand" width="100%" height="140"></svg></div></div>
+    </div>
+
+    <div id="tab-settings" class="section">
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:13px 17px;margin-bottom:22px;font-size:13px;color:#5d4e00;line-height:1.7">
+        <strong>⚙ One-time setup</strong> — Paste your Google Apps Script Web App URL below, then click Save &amp; Load Data.
+      </div>
+      <div class="sec-hd"><div class="sec-num">⚙</div><div class="sec-info"><div class="sec-lbl">Backend Configuration</div><div class="sec-ttl">Google Sheets Connection</div></div></div>
+      <div class="config-card">
+        <p style="font-size:13px;color:var(--ink2);margin-bottom:18px;line-height:1.9">
+          <strong>Setup steps:</strong><br>
+          1. Open Google Sheet → <strong>Extensions → Apps Script</strong><br>
+          2. Paste code from <code>google-apps-script.js</code> → Save → Deploy as Web App<br>
+          3. Execute as: <strong>Me</strong> · Who has access: <strong>Anyone</strong><br>
+          4. Copy the Web App URL and paste below
+        </p>
+        <label class="field-lbl" for="script-url-input">Google Apps Script Web App URL</label>
+        <input class="field-input" id="script-url-input" type="text" placeholder="https://script.google.com/macros/s/…/exec">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+          <button class="btn-save" onclick="saveConfig()">Save &amp; Load Data</button>
+          <button class="btn-clear-c" onclick="clearConfig()">Clear</button>
+        </div>
+        <div style="padding:10px 14px;background:var(--cream);border-radius:4px;font-size:12px;color:var(--ink3);display:flex;gap:20px;flex-wrap:wrap">
+          <span>Responses: <strong id="cfg-count" style="color:var(--navy)">—</strong></span>
+          <span>Status: <strong id="cfg-status" style="color:var(--navy)">Not configured</strong></span>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="chart-title" style="margin-bottom:12px">How It Works</div>
+        <div style="font-size:13px;color:var(--ink2);line-height:1.9">
+          <div>✓ Survey answers sent to Google Apps Script on submission</div>
+          <div>✓ Script writes each response as a new row in Google Sheets</div>
+          <div>✓ Dashboard reads live from the same Sheet — <strong>any browser, any device</strong></div>
+          <div>✓ Google Sheet can be shared directly with Dr. Lenzer</div>
+          <div>✓ All Excel/CSV exports pull live data from Google Sheets</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Toast -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div><div class="modal-eyebrow">Response Detail</div><div class="modal-ttl">Full Submission Record</div></div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ── AUTH CHECK ───────────────────────────────────────────────────
-if (!localStorage.getItem('admin_auth')) {
-  window.location.href = 'admin-login.html';
+'use strict';
+
+var SCRIPT_URL = localStorage.getItem('gsheet_script_url') || '';
+var COLORS = ['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#e4dfd7','#2980b9','#27ae60'];
+var allData = [], filteredData = [], curPage = 1, rowsPerPage = 10, sortCol = -1, sortDir = 1;
+
+var TAB_TITLES = {overview:'Overview',responses:'All Responses',demographics:'Demographics',translation:'Translation Tools',settings:'Data Management'};
+
+function switchTab(id, el) {
+  document.querySelectorAll('.section').forEach(function(s) {
+    s.style.display = 'none';
+    s.classList.remove('active');
+  });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var t = document.getElementById('tab-' + id);
+  if (t) { t.style.display = 'block'; t.classList.add('active'); }
+  if (el) el.classList.add('active');
+  var title = document.getElementById('topbar-title');
+  if (title) title.textContent = TAB_TITLES[id] || id;
+  setTimeout(drawCharts, 50);
 }
 
-// ── DATE ─────────────────────────────────────────────────────────
-document.getElementById('topbar-date').textContent =
-  new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
-
-// ── STORED CREDENTIALS ───────────────────────────────────────────
-var _siteId = localStorage.getItem('netlify_site_id') || '';
-var _token  = localStorage.getItem('netlify_token')   || '';
-var FORM_NAME = 'eduhk-survey-ses6026';
-
-// ── DATA ─────────────────────────────────────────────────────────
-var allData      = [];
-var filteredData = [];
-
-// ── HELPERS ──────────────────────────────────────────────────────
-function setText(id, val) {
-  var el = document.getElementById(id);
-  if (el) el.textContent = val;
+function checkAuth() {
+  if (window.location.protocol !== 'file:' && !localStorage.getItem('admin_auth')) {
+    window.location.href = 'admin-login.html';
+  }
 }
 
-function showBanner(type, msg) {
-  var b = document.getElementById('data-source-banner');
+function setBanner(type, msg) {
+  var b = document.getElementById('banner');
   if (!b) return;
-  var bg = {ok:'#e8f5e9',error:'#fdecea',loading:'#e3f2fd',warn:'#fff8e1'}[type]||'#fff8e1';
-  var bc = {ok:'#a5d6a7',error:'#f5c6cb',loading:'#90caf9',warn:'#ffe082'}[type]||'#ffe082';
-  var fc = {ok:'#1b5e20',error:'#c0392b',loading:'#1565c0',warn:'#5d4e00'}[type]||'#5d4e00';
-  b.style.cssText = 'background:'+bg+';border-bottom:1px solid '+bc+';padding:8px 36px;font-size:12px;color:'+fc+';display:flex;align-items:center;gap:8px;';
+  var s = {ok:'background:#e8f5e9;border-bottom:1px solid #a5d6a7;color:#1b5e20',error:'background:#fdecea;border-bottom:1px solid #f5c6cb;color:#c0392b',info:'background:#e3f2fd;border-bottom:1px solid #90caf9;color:#1565c0',warn:'background:#fff8e1;border-bottom:1px solid #ffe082;color:#5d4e00'};
+  b.setAttribute('style',(s[type]||s.warn)+';padding:8px 28px;font-size:12px;display:flex;align-items:center;gap:8px;');
   b.innerHTML = msg;
 }
 
-// ── NORMALIZE NETLIFY SUBMISSION ──────────────────────────────────
-function normalize(sub) {
-  try {
-    var d = sub.data || {};
-    function f(k) { return (d[k] || '').toString().trim() || '—'; }
-    var status = f('q6-status');
-    var degree = status === 'Current Student' ? f('q7-degree-type') : f('q8-degree-type');
-    var dateStr = '—';
-    try {
-      if (sub.created_at) dateStr = new Date(sub.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    } catch(e) {}
-    return {
-      id: sub.id || sub.number || '',
-      name: f('consent-name'),
-      date: dateStr,
-      university: f('q5-university'),
-      degree: degree,
-      subject: f('q9-subject'),
-      tongue: f('q1-mother-tongue'),
-      age: f('q2-age'),
-      gender: f('q3-gender'),
-      origin: f('q4-origin'),
-      status: status,
-      studyMode: f('q11-study-mode'),
-      fullPartTime: f('q10-full-part-time'),
-      usage: f('q13-usage-freq') !== '—' ? parseInt(f('q13-usage-freq'),10)||null : null,
-      understanding: f('q17-understanding') !== '—' ? parseInt(f('q17-understanding'),10)||null : null,
-      toolUsed: f('q15-tool-used'),
-      reasonsNotUsing: f('q14-reasons-not-using'),
-      reasonsUsing: f('q16-reasons-using'),
-      understandingFactors: f('q18-understanding-factors'),
-      hasProfTest: f('q19-has-test'),
-      testTaken: f('q20-test-taken'),
-      testResult: f('q21-test-result'),
-      preference: f('q22-preference'),
-      onlineBias: f('q23-online-bias'),
-      consented: true
-    };
-  } catch(e) {
-    console.error('normalize error:', e);
-    return null;
-  }
-}
-
-// ── FETCH FROM NETLIFY ────────────────────────────────────────────
 function loadData() {
-  if (!_siteId || !_token) {
-    showBanner('warn', '⚠ <strong>Setup required</strong> — Go to <strong>⚙ Data Management</strong> in the sidebar and enter your Netlify Site ID and Access Token.');
-    allData = []; filteredData = [];
-    safeInitCharts(); safeRenderTable();
-    return;
-  }
-  showBanner('loading', '⏳ Loading responses from Netlify Forms…');
-  var url = 'https://api.netlify.com/api/v1/sites/' + _siteId +
-            '/forms/' + FORM_NAME + '/submissions?per_page=1000&access_token=' + _token;
-  fetch(url)
-    .then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status + (r.status===404?' (Form not found — check Site ID or submit the survey once first)':r.status===401?' (Invalid token)':''));
-      return r.json();
-    })
-    .then(function(subs) {
-      allData = subs.map(normalize).filter(Boolean);
+  if (!SCRIPT_URL) { setBanner('warn','⚠ <strong>Setup required</strong> — Go to <strong>⚙ Data Management</strong> and enter your Google Apps Script URL.'); allData=[]; filteredData=[]; drawCharts(); renderTable(); return; }
+  setBanner('info','⏳ Loading responses from Google Sheets…');
+  fetch(SCRIPT_URL + '?action=getAll&t=' + Date.now())
+    .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function(rows) {
+      if (!Array.isArray(rows)) throw new Error('Invalid response — check Apps Script is deployed correctly');
+      allData = rows.map(normalizeRow).filter(Boolean);
       filteredData = allData.slice();
       var n = allData.length;
-      showBanner('ok', '✓ <strong>Live Data</strong> — ' + n + ' real submission' + (n!==1?'s':'') + ' loaded. Last refreshed: ' + new Date().toLocaleTimeString());
-      setText('admin-count', n);
-      safeInitCharts();
-      safeRenderTable();
+      setBanner('ok','✓ <strong>Live Data</strong> — <strong>'+n+'</strong> submission'+(n!==1?'s':'')+' loaded. Refreshed: '+new Date().toLocaleTimeString());
+      setText('cfg-count', n);
+      drawCharts(); renderTable();
+      toast('✓ '+n+' response'+(n!==1?'s':'')+' loaded');
     })
     .catch(function(err) {
-      console.error('loadData error:', err);
-      showBanner('error', '✗ Failed to load: <strong>' + err.message + '</strong> — Check your credentials in ⚙ Data Management.');
-      allData = []; filteredData = [];
-      safeInitCharts(); safeRenderTable();
+      console.error('loadData:', err);
+      setBanner('error','✗ Failed: <strong>'+err.message+'</strong> — Check Script URL in ⚙ Data Management.');
+      allData=[]; filteredData=[]; drawCharts(); renderTable();
     });
 }
 
-function refreshData() {
-  loadData();
+function normalizeRow(row) {
+  if (!row) return null;
+  function f(k) { return (row[k]||'').toString().trim()||'—'; }
+  var status = f('q6-status');
+  var degree = status==='Current Student' ? f('q7-degree-type') : f('q8-degree-type');
+  var dateStr = '—';
+  try { var dt=row['submitted-at']||row['Submitted At']||''; if(dt) dateStr=new Date(dt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); } catch(e) {}
+  return { name:f('consent-name'), date:dateStr, university:f('q5-university'), degree:degree, subject:f('q9-subject'), tongue:f('q1-mother-tongue'), age:f('q2-age'), gender:f('q3-gender'), origin:f('q4-origin'), status:status, fullPartTime:f('q10-full-part-time'), studyMode:f('q11-study-mode'), ftfPct:f('q12-ftf-pct'), onlinePct:f('q12-online-pct'), usage:row['q13-usage-freq']?parseInt(row['q13-usage-freq'])||null:null, reasonsNot:f('q14-reasons-not-using'), toolUsed:f('q15-tool-used'), reasonsFor:f('q16-reasons-using'), understanding:row['q17-understanding']?parseInt(row['q17-understanding'])||null:null, underFactors:f('q18-understanding-factors'), hasTest:f('q19-has-test'), testTaken:f('q20-test-taken'), testResult:f('q21-test-result'), preference:f('q22-preference'), onlineBias:f('q23-online-bias'), biasReasons:f('q24-bias-reasons'), acceptReasons:f('q25-accept-reasons') };
 }
 
-// ── AGGREGATE HELPERS ─────────────────────────────────────────────
-function countBy(arr, key) {
-  var map = {};
-  arr.forEach(function(r) {
-    var v = (r[key]||'Not specified').toString().trim();
-    if (!v || v==='—') v = 'Not specified';
-    map[v] = (map[v]||0) + 1;
-  });
-  return map;
-}
-function avgField(arr, key) {
-  var vals = arr.map(function(r){return r[key];}).filter(function(v){return v!==null&&v!==undefined&&!isNaN(Number(v));});
-  if (!vals.length) return 0;
-  return vals.reduce(function(s,v){return s+Number(v);},0)/vals.length;
-}
-function likertDist(arr, key) {
-  var d=[0,0,0,0,0,0,0];
-  arr.forEach(function(r){var v=parseInt(r[key],10);if(v>=1&&v<=7)d[v-1]++;});
-  return d;
-}
-function countRanked(arr, key) {
-  var map={};
-  arr.forEach(function(r){
-    var val=r[key]; if(!val||val==='—') return;
-    val.split(';').forEach(function(p){
-      var m=p.trim().match(/^\d+\.\s*(.+)$/);
-      if(m){var l=m[1].trim();map[l]=(map[l]||0)+1;}
-    });
-  });
-  return map;
-}
-function topN(map,n){return Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,n);}
+function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+function countBy(arr,key){var m={};arr.forEach(function(r){var v=(r[key]||'Unknown').toString().trim();if(v==='—')v='Not specified';m[v]=(m[v]||0)+1;});return m;}
+function avgF(arr,key){var v=arr.map(function(r){return r[key];}).filter(function(x){return x!==null&&!isNaN(x);});return v.length?v.reduce(function(s,x){return s+x;},0)/v.length:0;}
+function lkDist(arr,key){var d=[0,0,0,0,0,0,0];arr.forEach(function(r){var v=parseInt(r[key]);if(v>=1&&v<=7)d[v-1]++;});return d;}
+function countRanked(arr,key){var m={};arr.forEach(function(r){var val=r[key];if(!val||val==='—')return;val.split(';').forEach(function(p){var x=p.trim().match(/^\d+\.\s*(.+)$/);if(x){var l=x[1].trim();m[l]=(m[l]||0)+1;}});});return m;}
+function topN(m,n){return Object.entries(m).sort(function(a,b){return b[1]-a[1];}).slice(0,n);}
 
-var COLORS=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#e4dfd7','#2980b9','#27ae60'];
-
-// ── CHART RENDERERS ───────────────────────────────────────────────
-function renderDonut(svgId,legId,counts,total){
-  var svg=document.getElementById(svgId), leg=document.getElementById(legId);
-  if(!svg) return;
-  var sm=svg.getAttribute('viewBox')==='0 0 110 110', cx=sm?55:60, cy=sm?55:60, r=sm?40:45, sw=sm?16:18;
-  var circ=2*Math.PI*r, entries=Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
-  var sum=total||entries.reduce(function(s,e){return s+e[1];},0)||1, offset=circ*0.25;
-  var h='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="'+sw+'"/>', lh='';
-  entries.forEach(function(e,i){
-    var col=COLORS[i%COLORS.length], arc=(e[1]/sum)*circ;
-    h+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-dasharray="'+arc.toFixed(1)+' '+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
-    offset-=arc;
-    lh+='<div class="legend-item"><div class="legend-dot" style="background:'+col+'"></div><div class="legend-label">'+e[0]+'</div><div class="legend-pct">'+Math.round(e[1]/sum*100)+'%</div></div>';
-  });
-  h+='<text x="'+cx+'" y="'+(cy-5)+'" text-anchor="middle" font-family="var(--font-display)" font-size="'+(sm?15:18)+'" font-weight="600" fill="#0d1b2a">'+total+'</text>';
-  h+='<text x="'+cx+'" y="'+(cy+9)+'" text-anchor="middle" font-family="var(--font-body)" font-size="9" fill="#6b6b6b">TOTAL</text>';
-  svg.innerHTML=h; if(leg) leg.innerHTML=lh;
+function drawDonut(sid,lid,counts,total){
+  var svg=document.getElementById(sid),leg=document.getElementById(lid);if(!svg)return;
+  var entries=Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  var sum=total||entries.reduce(function(s,e){return s+e[1];},0)||1,circ=2*Math.PI*40,offset=circ*.25;
+  var h='<circle cx="55" cy="55" r="40" fill="none" stroke="#f0ece4" stroke-width="16"/>',lh='';
+  if(!entries.length){svg.innerHTML=h+'<text x="55" y="59" text-anchor="middle" font-size="10" fill="#ccc" font-style="italic">No data</text>';if(leg)leg.innerHTML='<div style="color:#ccc;font-size:12px;font-style:italic">Awaiting responses</div>';return;}
+  entries.forEach(function(e,i){var col=COLORS[i%COLORS.length],arc=(e[1]/sum)*circ;h+='<circle cx="55" cy="55" r="40" fill="none" stroke="'+col+'" stroke-width="16" stroke-dasharray="'+arc.toFixed(1)+' '+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 55 55)"/>';offset-=arc;lh+='<div class="legend-item"><div class="legend-dot" style="background:'+col+'"></div><div class="legend-label">'+e[0]+'</div><div class="legend-pct">'+Math.round(e[1]/sum*100)+'%</div></div>';});
+  h+='<text x="55" y="51" text-anchor="middle" font-size="16" font-weight="600" fill="#0d1b2a">'+total+'</text><text x="55" y="64" text-anchor="middle" font-size="9" fill="#999">TOTAL</text>';
+  svg.innerHTML=h;if(leg)leg.innerHTML=lh;
 }
 
 function drawBar(id,labels,values){
-  var svg=document.getElementById(id); if(!svg) return;
-  var W=(svg.parentElement?svg.parentElement.clientWidth:0)||600, H=parseInt(svg.getAttribute('height'))||140;
+  var svg=document.getElementById(id);if(!svg)return;
+  var W=svg.parentElement?svg.parentElement.clientWidth:500,H=parseInt(svg.getAttribute('height'))||140;
   svg.setAttribute('width',W);
-  if(!labels.length){svg.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-family="var(--font-body)" font-size="13" fill="#ccc" font-style="italic">No data yet</text>';return;}
-  var pL=10,pR=10,pT=10,pB=38,n=labels.length,bW=Math.max(4,Math.floor((W-pL-pR)/n)-6),mx=Math.max.apply(null,values)||1,cH=H-pT-pB,h='';
-  labels.forEach(function(lbl,i){
-    var x=pL+i*((W-pL-pR)/n)+3, bh=Math.max(2,Math.round((values[i]/mx)*cH)), by=pT+cH-bh;
-    h+='<g><rect x="'+x+'" y="'+by+'" width="'+bW+'" height="'+bh+'" fill="'+COLORS[i%COLORS.length]+'" rx="2"/>';
-    if(values[i]>0) h+='<text x="'+(x+bW/2)+'" y="'+(by-5)+'" text-anchor="middle" font-family="var(--font-body)" font-size="10" font-weight="600" fill="#0d1b2a">'+values[i]+'</text>';
-    var w=lbl.split(' '), l1=w.slice(0,2).join(' '), l2=w.slice(2).join(' ');
-    h+='<text x="'+(x+bW/2)+'" y="'+(H-pB+14)+'" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="#6b6b6b">'+l1+'</text>';
-    if(l2) h+='<text x="'+(x+bW/2)+'" y="'+(H-pB+25)+'" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="#6b6b6b">'+l2+'</text>';
-    h+='</g>';
-  });
+  if(!labels.length){svg.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-size="13" fill="#ccc" font-style="italic">No data yet</text>';return;}
+  var pL=10,pR=10,pT=10,pB=36,n=labels.length,bW=Math.max(4,Math.floor((W-pL-pR)/n)-6),mx=Math.max.apply(null,values)||1,cH=H-pT-pB,h='';
+  labels.forEach(function(lbl,i){var x=pL+i*((W-pL-pR)/n)+3,bh=Math.max(2,Math.round((values[i]/mx)*cH)),by=pT+cH-bh,col=COLORS[i%COLORS.length];h+='<rect x="'+x+'" y="'+by+'" width="'+bW+'" height="'+bh+'" fill="'+col+'" rx="2"/>';if(values[i]>0)h+='<text x="'+(x+bW/2)+'" y="'+(by-4)+'" text-anchor="middle" font-size="10" font-weight="600" fill="#0d1b2a">'+values[i]+'</text>';var w=lbl.split(' '),l1=w.slice(0,2).join(' '),l2=w.slice(2).join(' ');h+='<text x="'+(x+bW/2)+'" y="'+(H-pB+13)+'" text-anchor="middle" font-size="10" fill="#6b6b6b">'+l1+'</text>';if(l2)h+='<text x="'+(x+bW/2)+'" y="'+(H-pB+24)+'" text-anchor="middle" font-size="10" fill="#6b6b6b">'+l2+'</text>';});
   svg.innerHTML=h;
 }
 
 function drawLikert(id,data,colors){
-  var el=document.getElementById(id); if(!el) return;
-  var total=data.reduce(function(a,b){return a+b;},0);
-  var lbls=['Never (0%)','Rarely (<10%)','Sometimes (<30%)','Half (50%)','Often (>70%)','Mostly (>90%)','Always (100%)'];
-  el.innerHTML=data.map(function(v,i){
-    var pct=total?Math.round(v/total*100):0;
-    return '<div class="dist-row"><div class="dist-num">'+(i+1)+'</div>'+
-      '<div class="dist-bar-wrap"><div class="dist-bar-fill" style="width:'+pct+'%;background:'+(colors[i]||COLORS[i])+'">'+
-      (pct>12?'<span class="dist-bar-label">'+lbls[i]+'</span>':'')+
-      '</div></div><div class="dist-count">'+v+'<span style="color:#aaa;font-size:10px"> ('+pct+'%)</span></div></div>';
-  }).join('');
+  var el=document.getElementById(id);if(!el)return;
+  var total=data.reduce(function(a,b){return a+b;},0),lbls=['Never','Rarely','Sometimes','Half','Often','Mostly','Always'];
+  el.innerHTML=data.map(function(v,i){var pct=total?Math.round(v/total*100):0;return'<div class="lk-row"><div class="lk-num">'+(i+1)+'</div><div class="lk-bar-wrap"><div class="lk-bar" style="width:'+pct+'%;background:'+(colors[i]||COLORS[i])+'">'+(pct>12?'<span class="lk-bar-lbl">'+lbls[i]+'</span>':'')+' </div></div><div class="lk-count">'+v+' <span style="color:#aaa;font-size:10px">('+pct+'%)</span></div></div>';}).join('');
 }
 
-function emptyChart(id){var s=document.getElementById(id);if(!s)return;var W=(s.parentElement?s.parentElement.clientWidth:0)||400;s.setAttribute('width',W);s.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-family="var(--font-body)" font-size="13" fill="#ccc" font-style="italic">No data yet</text>';}
-function emptyLikert(id){var el=document.getElementById(id);if(!el)return;el.innerHTML=[1,2,3,4,5,6,7].map(function(i){return'<div class="dist-row"><div class="dist-num">'+i+'</div><div class="dist-bar-wrap"><div class="dist-bar-fill" style="width:0%;background:#e4dfd7"></div></div><div class="dist-count" style="color:#ccc">0</div></div>';}).join('');}
-function emptyDonut(sId,lId){var s=document.getElementById(sId);if(s){var sm=s.getAttribute('viewBox')==='0 0 110 110',cx=sm?55:60,cy=sm?55:60,r=sm?40:45,sw=sm?16:18;s.innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="'+sw+'"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="#ccc" font-style="italic">No data</text>';}var l=document.getElementById(lId);if(l)l.innerHTML='<div style="font-size:12px;color:#ccc;font-style:italic">Awaiting responses</div>';}
+function emptyBar(id){var svg=document.getElementById(id);if(!svg)return;var W=svg.parentElement?svg.parentElement.clientWidth:500;svg.setAttribute('width',W);svg.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-size="13" fill="#ccc" font-style="italic">No data yet</text>';}
+function emptyLk(id){var el=document.getElementById(id);if(!el)return;el.innerHTML=[1,2,3,4,5,6,7].map(function(i){return'<div class="lk-row"><div class="lk-num">'+i+'</div><div class="lk-bar-wrap"><div class="lk-bar" style="width:0%;background:#e4dfd7"></div></div><div class="lk-count" style="color:#ccc">0</div></div>';}).join('');}
 
-function safeInitCharts() {
-  try { initCharts(); } catch(e) { console.error('initCharts error:', e); }
-}
-function safeRenderTable() {
-  try { renderTable(); } catch(e) { console.error('renderTable error:', e); }
-}
-
-function initCharts() {
-  var n = allData.length;
-  setText('stat-total', n);
-  setText('stat-consented', n);
-  setText('stat-total-sub', n > 0 ? n + ' participant' + (n!==1?'s':'') + ' recorded' : 'No submissions yet');
-  setText('stat-consent-rate', n > 0 ? '100% consent rate' : '—');
-  var avgU = n ? avgField(allData,'usage') : 0;
-  var avgN = n ? avgField(allData,'understanding') : 0;
-  setText('stat-avg-usage', n && avgU ? avgU.toFixed(1) : '—');
-  setText('stat-avg-understand', n && avgN ? avgN.toFixed(1) : '—');
-  setText('resp-count', n); setText('demo-count', n); setText('trans-count', n); setText('admin-count', n);
-
-  if (n === 0) {
-    ['tongue-donut-svg','age-donut-svg','gender-donut-svg','origin-donut-svg','status-donut-svg','mode-donut-svg'].forEach(function(id,i){emptyDonut(id,id.replace('-svg','-legend'));});
-    ['likert-usage','likert-understand','likert-usage-2','likert-understand-2'].forEach(emptyLikert);
-    ['uni-chart','tool-chart','tool-chart-2','subject-chart','no-reason-chart','use-reason-chart','understand-chart','pref-chart'].forEach(emptyChart);
-    ['stat-never','stat-regular','stat-top-tool','stat-top-reason'].forEach(function(id){setText(id,'—');});
-    setText('stat-never-pct','of respondents'); setText('stat-regular-pct','of respondents'); setText('stat-top-tool-pct','of tool users');
+function drawCharts(){
+  var n=allData.length,lC1=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#b8963e','#0d1b2a'],lC2=['#e4dfd7','#d4b06a','#b8963e','#1e2f45','#162032','#0d1b2a','#0d1b2a'];
+  setText('st-total',n||'—');setText('st-sub',n?n+' participant'+(n!==1?'s':''):'No submissions yet');setText('st-consent',n||'—');
+  var avgU=n?avgF(allData,'usage'):0,avgN=n?avgF(allData,'understanding'):0;
+  setText('st-usage',n&&avgU?avgU.toFixed(1):'—');setText('st-under',n&&avgN?avgN.toFixed(1):'—');
+  setText('resp-cnt',n||'—');setText('demo-cnt',n||'—');setText('trans-cnt',n||'—');setText('cfg-count',n);
+  if(!n){
+    ['c-tongue','c-age','c-gender','c-origin','c-status','c-mode'].forEach(function(id){var svg=document.getElementById(id);if(svg)svg.innerHTML='<circle cx="55" cy="55" r="40" fill="none" stroke="#f0ece4" stroke-width="16"/><text x="55" y="59" text-anchor="middle" font-size="10" fill="#ccc" font-style="italic">No data</text>';});
+    ['l-tongue','l-age','l-gender','l-origin','l-status','l-mode'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div style="color:#ccc;font-size:12px;font-style:italic">Awaiting responses</div>';});
+    ['lk-usage','lk-under','lk-usage2','lk-under2'].forEach(emptyLk);
+    ['b-uni','b-tool','b-subj','b-pref','b-noreason','b-usereason','b-understand'].forEach(emptyBar);
+    setText('st-never','—');setText('st-never-s','of respondents');setText('st-reg','—');setText('st-reg-s','of respondents');setText('st-tool','—');setText('st-tool-s','—');setText('st-reason','—');
     return;
   }
-
-  renderDonut('tongue-donut-svg','tongue-donut-legend',countBy(allData,'tongue'),n);
-  renderDonut('age-donut-svg','age-donut-legend',countBy(allData,'age'),n);
-  renderDonut('gender-donut-svg','gender-donut-legend',countBy(allData,'gender'),n);
-  renderDonut('origin-donut-svg','origin-donut-legend',countBy(allData,'origin'),n);
-  renderDonut('status-donut-svg','status-donut-legend',countBy(allData,'status'),n);
-  renderDonut('mode-donut-svg','mode-donut-legend',countBy(allData,'studyMode'),n);
-
-  var lC1=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#b8963e','#0d1b2a'];
-  var lC2=['#e4dfd7','#d4b06a','#b8963e','#1e2f45','#162032','#0d1b2a','#0d1b2a'];
-  drawLikert('likert-usage',likertDist(allData,'usage'),lC1);
-  drawLikert('likert-understand',likertDist(allData,'understanding'),lC2);
-  drawLikert('likert-usage-2',likertDist(allData,'usage'),lC1);
-  drawLikert('likert-understand-2',likertDist(allData,'understanding'),lC2);
-
-  var t=topN(countBy(allData,'university'),8); drawBar('uni-chart',t.map(function(e){return e[0];}),t.map(function(e){return e[1];}));
-  var s=topN(countBy(allData,'subject'),8);    drawBar('subject-chart',s.map(function(e){return e[0];}),s.map(function(e){return e[1];}));
-  var p=topN(countBy(allData,'preference'),5); drawBar('pref-chart',p.map(function(e){return e[0];}),p.map(function(e){return e[1];}));
-
-  var tU=allData.filter(function(r){return r.usage!==null&&r.usage>1;});
-  var nU=allData.filter(function(r){return r.usage===1;});
-  var rU=allData.filter(function(r){return r.usage!==null&&r.usage>=4;});
-  setText('stat-never',nU.length); setText('stat-never-pct',Math.round(nU.length/(n||1)*100)+'% of respondents');
-  setText('stat-regular',rU.length); setText('stat-regular-pct',Math.round(rU.length/(n||1)*100)+'% of respondents');
-
+  drawDonut('c-tongue','l-tongue',countBy(allData,'tongue'),n);drawDonut('c-age','l-age',countBy(allData,'age'),n);
+  drawDonut('c-gender','l-gender',countBy(allData,'gender'),n);drawDonut('c-origin','l-origin',countBy(allData,'origin'),n);
+  drawDonut('c-status','l-status',countBy(allData,'status'),n);drawDonut('c-mode','l-mode',countBy(allData,'studyMode'),n);
+  var uD=lkDist(allData,'usage'),nD=lkDist(allData,'understanding');
+  drawLikert('lk-usage',uD,lC1);drawLikert('lk-under',nD,lC2);drawLikert('lk-usage2',uD,lC1);drawLikert('lk-under2',nD,lC2);
+  var ut=topN(countBy(allData,'university'),8);drawBar('b-uni',ut.map(function(e){return e[0];}),ut.map(function(e){return e[1];}));
+  var st=topN(countBy(allData,'subject'),8);drawBar('b-subj',st.map(function(e){return e[0];}),st.map(function(e){return e[1];}));
+  var pt=topN(countBy(allData,'preference'),5);drawBar('b-pref',pt.map(function(e){return e[0];}),pt.map(function(e){return e[1];}));
+  var tU=allData.filter(function(r){return r.usage!==null&&r.usage>1;}),nU=allData.filter(function(r){return r.usage===1;}),rU=allData.filter(function(r){return r.usage!==null&&r.usage>=4;});
+  setText('st-never',nU.length);setText('st-never-s',Math.round(nU.length/n*100)+'% of respondents');
+  setText('st-reg',rU.length);setText('st-reg-s',Math.round(rU.length/n*100)+'% of respondents');
   var tM=topN(countBy(tU,'toolUsed'),8);
-  if(tM.length){drawBar('tool-chart',tM.map(function(e){return e[0];}),tM.map(function(e){return e[1];}));drawBar('tool-chart-2',tM.map(function(e){return e[0];}),tM.map(function(e){return e[1];}));setText('stat-top-tool',tM[0][0]);setText('stat-top-tool-pct',Math.round(tM[0][1]/(tU.length||1)*100)+'% of tool users');}
-  else{emptyChart('tool-chart');emptyChart('tool-chart-2');setText('stat-top-tool','—');setText('stat-top-tool-pct','—');}
-
-  var nRM=topN(countRanked(nU,'reasonsNotUsing'),6);
-  if(nRM.length)drawBar('no-reason-chart',nRM.map(function(e){return e[0];}),nRM.map(function(e){return e[1];})); else emptyChart('no-reason-chart');
-
-  var uRM=topN(countRanked(tU,'reasonsUsing'),6);
-  if(uRM.length){drawBar('use-reason-chart',uRM.map(function(e){return e[0];}),uRM.map(function(e){return e[1];}));setText('stat-top-reason',uRM[0][0]);}
-  else{emptyChart('use-reason-chart');setText('stat-top-reason','—');}
-
-  var uFM=topN(countRanked(allData,'understandingFactors'),7);
-  if(uFM.length)drawBar('understand-chart',uFM.map(function(e){return e[0];}),uFM.map(function(e){return e[1];})); else emptyChart('understand-chart');
+  if(tM.length){drawBar('b-tool',tM.map(function(e){return e[0];}),tM.map(function(e){return e[1];}));setText('st-tool',tM[0][0]);setText('st-tool-s',Math.round(tM[0][1]/(tU.length||1)*100)+'% of tool users');}else{emptyBar('b-tool');setText('st-tool','—');setText('st-tool-s','—');}
+  var nRM=topN(countRanked(nU,'reasonsNot'),6);if(nRM.length)drawBar('b-noreason',nRM.map(function(e){return e[0];}),nRM.map(function(e){return e[1];}));else emptyBar('b-noreason');
+  var uRM=topN(countRanked(tU,'reasonsFor'),6);if(uRM.length){drawBar('b-usereason',uRM.map(function(e){return e[0];}),uRM.map(function(e){return e[1];}));setText('st-reason',uRM[0][0]);}else{emptyBar('b-usereason');setText('st-reason','—');}
+  var uFM=topN(countRanked(allData,'underFactors'),7);if(uFM.length)drawBar('b-understand',uFM.map(function(e){return e[0];}),uFM.map(function(e){return e[1];}));else emptyBar('b-understand');
 }
 
-// ── NAVIGATION ────────────────────────────────────────────────────
-var TITLES={overview:'Overview',responses:'All Responses',demographics:'Demographics',translation:'Translation Tools',admin:'Data Management'};
-
-function showSection(id, navEl) {
-  try {
-    document.querySelectorAll('.page-section').forEach(function(s){ s.classList.remove('active'); s.style.display='none'; });
-    document.querySelectorAll('.nav-item').forEach(function(n){ n.classList.remove('active'); });
-    var sec = document.getElementById('sec-'+id);
-    if (sec) { sec.classList.add('active'); sec.style.display='block'; }
-    if (navEl) navEl.classList.add('active');
-    setText('topbar-title', TITLES[id]||id);
-    setTimeout(safeInitCharts, 60);
-  } catch(e) { console.error('showSection error:', e); }
-}
-
-// ── TABLE ─────────────────────────────────────────────────────────
-var currentPage=1, rowsPerPage=10, sortCol=-1, sortDir=1;
-
-function showDetail(i) {
-  var r=filteredData[i]; if(!r) return;
-  var body=document.getElementById('detail-body'), modal=document.getElementById('detail-modal');
-  if(!body||!modal) return;
-  var flds=[
-    ['Participant',r.name],['Date',r.date],['Consent','✓ Consented'],
-    ['-- Section 1 --',''],['Mother Tongue',r.tongue],['Age',r.age],['Gender',r.gender],
-    ['Origin',r.origin],['University',r.university],['Status',r.status],
-    ['Degree',r.degree],['Subject',r.subject],['Full/Part-time',r.fullPartTime],
-    ['-- Section 2 --',''],['Study Mode',r.studyMode],
-    ['-- Section 3 --',''],['Tool Usage Q13',r.usage!==null?r.usage+' / 7':'—'],
-    ['Reasons Not Using Q14',r.reasonsNotUsing],['Tool Used Q15',r.toolUsed],['Reasons Using Q16',r.reasonsUsing],
-    ['-- Section 4 --',''],['Understanding Q17',r.understanding!==null?r.understanding+' / 7':'—'],
-    ['Understanding Factors Q18',r.understandingFactors],
-    ['-- Section 5 --',''],['Has Test Q19',r.hasProfTest],['Test Q20',r.testTaken],['Result Q21',r.testResult],
-    ['-- Section 6 --',''],['Preference Q22',r.preference],['Online Bias Q23',r.onlineBias]
-  ];
-  body.innerHTML=flds.map(function(f){
-    if(f[1]==='') return'<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:14px 0 6px;border-top:1px solid var(--rule);margin-top:6px">'+f[0]+'</div>';
-    return'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f2ee;gap:12px"><span style="font-size:12px;color:var(--ink-soft);flex-shrink:0">'+f[0]+'</span><span style="font-size:12.5px;color:var(--navy);font-weight:500;text-align:right">'+(f[1]||'—')+'</span></div>';
-  }).join('');
-  modal.style.display='flex';
-}
-function closeDetail(){ var m=document.getElementById('detail-modal'); if(m) m.style.display='none'; }
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDetail();});
-
-function renderTable() {
-  var body=document.getElementById('table-body'); if(!body) return;
-  var start=(currentPage-1)*rowsPerPage, slice=filteredData.slice(start,start+rowsPerPage);
-  if(!slice.length){
-    body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--ink-soft);font-style:italic">'+(allData.length?'No matching responses.':'No responses yet. Configure Netlify credentials in ⚙ Data Management.')+'</td></tr>';
-  } else {
-    body.innerHTML=slice.map(function(r,i){
-      var ai=start+i;
-      var u=r.usage!==null?'<strong style="color:var(--navy)">'+r.usage+'</strong><span style="color:#aaa"> /7</span>':'<span style="color:#ccc">—</span>';
-      var nd=r.understanding!==null?'<strong style="color:var(--navy)">'+r.understanding+'</strong><span style="color:#aaa"> /7</span>':'<span style="color:#ccc">—</span>';
-      return'<tr onclick="showDetail('+ai+')" style="cursor:pointer">'+
-        '<td>'+r.name+'</td><td>'+r.date+'</td>'+
-        '<td><span class="badge badge-navy">'+(r.university||'—')+'</span></td>'+
-        '<td>'+(r.degree||'—')+'</td><td>'+(r.tongue||'—')+'</td>'+
-        '<td>'+u+'</td><td>'+nd+'</td><td>'+(r.studyMode||'—')+'</td>'+
-        '<td><span class="badge badge-green">✓ Consented</span></td></tr>';
-    }).join('');
-  }
-  var total=filteredData.length, pages=Math.ceil(total/rowsPerPage)||1;
+function renderTable(){
+  var body=document.getElementById('tbl-body');if(!body)return;
+  var start=(curPage-1)*rowsPerPage,slice=filteredData.slice(start,start+rowsPerPage);
+  if(!slice.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:32px;color:#999;font-style:italic">'+(allData.length?'No matching responses.':'No responses yet — configure Google Sheets in ⚙ Data Management.')+'</td></tr>';}
+  else{body.innerHTML=slice.map(function(r,i){var ai=start+i,u=r.usage!==null?'<strong style="color:var(--navy)">'+r.usage+'</strong><span style="color:#aaa"> /7</span>':'—',nd=r.understanding!==null?'<strong style="color:var(--navy)">'+r.understanding+'</strong><span style="color:#aaa"> /7</span>':'—';return'<tr onclick="showDetail('+ai+')"><td>'+r.name+'</td><td>'+r.date+'</td><td><span class="badge badge-navy">'+r.university+'</span></td><td>'+r.degree+'</td><td>'+r.tongue+'</td><td>'+u+'</td><td>'+nd+'</td><td>'+r.studyMode+'</td><td><span class="badge badge-green">✓ Consented</span></td></tr>';}).join('');}
+  var total=filteredData.length,pages=Math.ceil(total/rowsPerPage)||1;
   setText('pg-info',total?'Showing '+(start+1)+'–'+Math.min(start+rowsPerPage,total)+' of '+total:'No results');
-  var btns=''; for(var p=1;p<=pages;p++) btns+='<button class="pg-btn'+(p===currentPage?' active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
+  var btns='';for(var p=1;p<=pages;p++)btns+='<button class="pg-btn'+(p===curPage?' active':'')+'\" onclick="goPage('+p+')">'+p+'</button>';
   document.getElementById('pg-btns').innerHTML=btns;
 }
-function goPage(p){currentPage=p;renderTable();}
-function filterTable(){
-  var s=(document.getElementById('search-box').value||'').toLowerCase();
-  var u=document.getElementById('filter-uni').value||'';
-  filteredData=allData.filter(function(r){return(!s||(r.name||'').toLowerCase().includes(s)||(r.university||'').toLowerCase().includes(s))&&(!u||r.university===u);});
-  currentPage=1; renderTable();
-}
-function sortTable(col){
-  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
-  var keys=['name','date','university','degree','tongue','usage','understanding','studyMode'];
-  filteredData.sort(function(a,b){var av=a[keys[col]]??'',bv=b[keys[col]]??'';return(av<bv?-1:av>bv?1:0)*sortDir;});
-  document.querySelectorAll('thead th').forEach(function(th,i){th.classList.toggle('sorted',i===col);});
-  renderTable();
-}
+function goPage(p){curPage=p;renderTable();}
+function filterTbl(){var s=(document.getElementById('srch').value||'').toLowerCase();filteredData=allData.filter(function(r){return!s||(r.name||'').toLowerCase().includes(s)||(r.university||'').toLowerCase().includes(s);});curPage=1;renderTable();}
+function sortTbl(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}var keys=['name','date','university','degree','tongue','usage','understanding','studyMode'];filteredData.sort(function(a,b){var av=a[keys[col]]!=null?a[keys[col]]:'',bv=b[keys[col]]!=null?b[keys[col]]:'';return(av<bv?-1:av>bv?1:0)*sortDir;});renderTable();}
 
-// ── EXPORT ────────────────────────────────────────────────────────
-function toggleDrop(){var d=document.getElementById('exp-dropdown'),c=document.getElementById('exp-caret');d.classList.toggle('open');c.textContent=d.classList.contains('open')?'▴':'▾';}
-function closeDrop(){var d=document.getElementById('exp-dropdown');if(d)d.classList.remove('open');var c=document.getElementById('exp-caret');if(c)c.textContent='▾';}
-document.addEventListener('click',function(e){if(!e.target.closest('.exp-wrap'))closeDrop();});
+function showDetail(i){
+  var r=filteredData[i];if(!r)return;
+  var flds=[['Participant Name',r.name],['Submitted',r.date],['Consent','✓ Consented'],['— Section 1: Basic Information —',''],['Mother Tongue (Q1)',r.tongue],['Age (Q2)',r.age],['Gender (Q3)',r.gender],['Origin (Q4)',r.origin],['University (Q5)',r.university],['Status (Q6)',r.status],['Degree Type (Q7/Q8)',r.degree],['Subject (Q9)',r.subject],['Full/Part-time (Q10)',r.fullPartTime],['— Section 2: Mode of Study —',''],['Study Mode (Q11)',r.studyMode],['Face-to-face % (Q12)',r.ftfPct&&r.ftfPct!=='—'?r.ftfPct+'%':'—'],['Online % (Q12)',r.onlinePct&&r.onlinePct!=='—'?r.onlinePct+'%':'—'],['— Section 3: Translation Tools —',''],['Usage Freq Q13 (1–7)',r.usage!==null?r.usage+' / 7':'—'],['Reasons NOT Using (Q14)',r.reasonsNot],['Tool Used (Q15)',r.toolUsed],['Reasons FOR Using (Q16)',r.reasonsFor],['— Section 4: Understanding —',''],['Understanding Q17 (1–7)',r.understanding!==null?r.understanding+' / 7':'—'],['Understanding Factors (Q18)',r.underFactors],['— Section 5: English Qualification —',''],['Has Test (Q19)',r.hasTest],['Test Taken (Q20)',r.testTaken],['Result (Q21)',r.testResult],['— Section 6: Online Degrees —',''],['Preference (Q22)',r.preference],['Online Bias (Q23)',r.onlineBias],['Bias Reasons (Q24)',r.biasReasons],['Accept Reasons (Q25)',r.acceptReasons]];
+  document.getElementById('modal-body').innerHTML=flds.map(function(f){if(f[1]==='')return'<div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:12px 0 5px;border-top:1px solid var(--rule);margin-top:5px">'+f[0]+'</div>';return'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f2ee;gap:12px"><span style="font-size:12px;color:var(--ink3);flex-shrink:0">'+f[0]+'</span><span style="font-size:12.5px;color:var(--navy);font-weight:500;text-align:right">'+(f[1]||'—')+'</span></div>';}).join('');
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){document.getElementById('modal').classList.remove('open');}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 
-function buildRawSheet(data){
-  var hdr=['#','Name','Date','University','Degree','Subject','Mother Tongue','Age','Gender','Origin','Status','Study Mode','Ft/Pt','Tool Usage Q13','Tool Used Q15','Not Using Reasons Q14','Using Reasons Q16','Understanding Q17','Understand Factors Q18','Has Test Q19','Test Q20','Result Q21','Preference Q22','Online Bias Q23','Consented'];
-  var rows=[hdr];
-  data.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.subject,r.tongue,r.age,r.gender,r.origin,r.status,r.studyMode,r.fullPartTime,r.usage,r.toolUsed,r.reasonsNotUsing,r.reasonsUsing,r.understanding,r.understandingFactors,r.hasProfTest,r.testTaken,r.testResult,r.preference,r.onlineBias,'Yes']);});
-  var ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[4,24,14,10,14,14,14,10,8,14,16,14,8,14,18,28,28,16,28,10,12,12,18,12,10].map(function(w){return{wch:w};});
-  return ws;
-}
-function statBlock(lbl,map,tot){var r=[['-- '+lbl+' --','Count','%']];Object.entries(map).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){r.push([e[0],e[1],Math.round(e[1]/(tot||1)*100)+'%']);});r.push(['','','']);return r;}
-function buildStatsSheet(){
-  var n=allData.length||1, rows=[['EdUHK SES6026 — Summary Statistics','',''],['Generated',new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),''],['Total Responses',allData.length,''],['Consent Rate','100%',''],['Avg Tool Usage Q13',avgField(allData,'usage').toFixed(2),'/ 7'],['Avg Understanding Q17',avgField(allData,'understanding').toFixed(2),'/ 7'],['','','']];
-  rows=rows.concat(statBlock('MOTHER TONGUE Q1',countBy(allData,'tongue'),n));
-  rows=rows.concat(statBlock('AGE Q2',countBy(allData,'age'),n));
-  rows=rows.concat(statBlock('GENDER Q3',countBy(allData,'gender'),n));
-  rows=rows.concat(statBlock('ORIGIN Q4',countBy(allData,'origin'),n));
-  rows=rows.concat(statBlock('UNIVERSITY Q5',countBy(allData,'university'),n));
-  rows=rows.concat(statBlock('STATUS Q6',countBy(allData,'status'),n));
-  rows=rows.concat(statBlock('SUBJECT Q9',countBy(allData,'subject'),n));
-  rows=rows.concat(statBlock('STUDY MODE Q11',countBy(allData,'studyMode'),n));
-  var uD=likertDist(allData,'usage'),nD=likertDist(allData,'understanding'),lbl=['1-Never','2-Rarely','3-Sometimes','4-Half','5-Often','6-Mostly','7-Always'];
-  rows.push(['-- TOOL USAGE Q13 --','Count','%']); uD.forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
-  rows.push(['-- UNDERSTANDING Q17 --','Count','%']); nD.forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
-  var tU=allData.filter(function(r){return r.usage>1;}),nU2=allData.filter(function(r){return r.usage===1;});
-  rows=rows.concat(statBlock('TOOL USED Q15',countBy(tU,'toolUsed'),tU.length||1));
-  rows=rows.concat(statBlock('NOT USING REASONS Q14',countRanked(nU2,'reasonsNotUsing'),nU2.length||1));
-  rows=rows.concat(statBlock('USING REASONS Q16',countRanked(tU,'reasonsUsing'),tU.length||1));
-  rows=rows.concat(statBlock('UNDERSTAND FACTORS Q18',countRanked(allData,'understandingFactors'),n));
-  rows=rows.concat(statBlock('PREFERENCE Q22',countBy(allData,'preference'),n));
-  rows=rows.concat(statBlock('ONLINE BIAS Q23',countBy(allData,'onlineBias'),n));
-  var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:46},{wch:12},{wch:8}]; return ws;
-}
-function buildConsentSheet(){
-  var hdr=['#','Name','Date','University','Degree','Status','Consented','Study'],rows=[hdr];
-  allData.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.status,'Yes','SES6026 — EdUHK']);});
-  var ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:4},{wch:24},{wch:14},{wch:10},{wch:16},{wch:16},{wch:10},{wch:24}]; return ws;
-}
-function expAll(){try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRawSheet(allData),'Raw Responses');XLSX.utils.book_append_sheet(wb,buildStatsSheet(),'Summary Statistics');XLSX.utils.book_append_sheet(wb,buildConsentSheet(),'Consent Log');XLSX.writeFile(wb,'EdUHK_SES6026_Full_Report.xlsx');showToast('✓ Full Excel report downloaded');}catch(e){showToast('Export error: '+e.message);}}
-function expStats(){try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildStatsSheet(),'Summary Statistics');XLSX.writeFile(wb,'EdUHK_SES6026_Statistics.xlsx');showToast('✓ Statistics downloaded');}catch(e){showToast('Export error: '+e.message);}}
-function expFiltered(){try{var data=filteredData.length?filteredData:allData;var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRawSheet(data),'Filtered');XLSX.writeFile(wb,'EdUHK_SES6026_Filtered.xlsx');showToast('✓ Exported '+data.length+' rows');}catch(e){showToast('Export error: '+e.message);}}
-function expCSV(){try{var hdr=['#','Name','Date','University','Degree','Subject','Tongue','Age','Gender','Origin','Status','Mode','Tool Usage','Tool Used','Understanding','Preference','Consented'],rows=[hdr.join(',')];allData.forEach(function(r,i){var e=function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"';};rows.push([i+1,e(r.name),e(r.date),e(r.university),e(r.degree),e(r.subject),e(r.tongue),e(r.age),e(r.gender),e(r.origin),e(r.status),e(r.studyMode),r.usage||'',e(r.toolUsed),r.understanding||'',e(r.preference),'Yes'].join(','));});var blob=new Blob(['﻿'+rows.join('
-')],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='EdUHK_SES6026.csv';a.click();URL.revokeObjectURL(url);showToast('✓ CSV downloaded');}catch(e){showToast('Export error: '+e.message);}}
-function exportAllXLSX(){expAll();} function exportTableXLSX(){expFiltered();}
+function buildRaw(data){var hdr=['#','Name','Date','University','Degree','Subject','Tongue','Age','Gender','Origin','Status','Mode','Ft/Pt','Usage Q13','Not Using Q14','Tool Q15','Using Q16','Understanding Q17','Factors Q18','Has Test Q19','Test Q20','Result Q21','Preference Q22','Bias Q23','Bias Reasons Q24','Accept Q25','Consented'],rows=[hdr];data.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.subject,r.tongue,r.age,r.gender,r.origin,r.status,r.studyMode,r.fullPartTime,r.usage,r.reasonsNot,r.toolUsed,r.reasonsFor,r.understanding,r.underFactors,r.hasTest,r.testTaken,r.testResult,r.preference,r.onlineBias,r.biasReasons,r.acceptReasons,'Yes']);});return XLSX.utils.aoa_to_sheet(rows);}
+function buildStats(){var n=allData.length||1;function sb(lbl,m,t){var r=[['-- '+lbl+' --','Count','%']];Object.entries(m).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){r.push([e[0],e[1],Math.round(e[1]/t*100)+'%']);});r.push(['','','']);return r;}var rows=[['EdUHK SES6026 — Summary Statistics','',''],['Generated',new Date().toLocaleDateString('en-GB'),''],['Total',allData.length,''],['Avg Usage Q13',avgF(allData,'usage').toFixed(2),'/ 7'],['Avg Understanding Q17',avgF(allData,'understanding').toFixed(2),'/ 7'],['','','']];rows=rows.concat(sb('MOTHER TONGUE Q1',countBy(allData,'tongue'),n));rows=rows.concat(sb('AGE Q2',countBy(allData,'age'),n));rows=rows.concat(sb('GENDER Q3',countBy(allData,'gender'),n));rows=rows.concat(sb('UNIVERSITY Q5',countBy(allData,'university'),n));rows=rows.concat(sb('STATUS Q6',countBy(allData,'status'),n));rows=rows.concat(sb('SUBJECT Q9',countBy(allData,'subject'),n));rows=rows.concat(sb('STUDY MODE Q11',countBy(allData,'studyMode'),n));var lbl=['1-Never','2-Rarely','3-Sometimes','4-Half','5-Often','6-Mostly','7-Always'];rows.push(['-- TOOL USAGE Q13 --','Count','%']);lkDist(allData,'usage').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);rows.push(['-- UNDERSTANDING Q17 --','Count','%']);lkDist(allData,'understanding').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);var tU=allData.filter(function(r){return r.usage>1;});rows=rows.concat(sb('TOOL USED Q15',countBy(tU,'toolUsed'),tU.length||1));rows=rows.concat(sb('PREFERENCE Q22',countBy(allData,'preference'),n));rows=rows.concat(sb('ONLINE BIAS Q23',countBy(allData,'onlineBias'),n));var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:46},{wch:12},{wch:8}];return ws;}
+function buildConsent(){var hdr=['#','Name','Date','University','Degree','Status','Consented','Study'],rows=[hdr];allData.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.status,'Yes','SES6026 MA Thesis — EdUHK']);});return XLSX.utils.aoa_to_sheet(rows);}
+function expAll(){if(!allData.length){toast('No data to export');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(allData),'Raw Responses');XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.utils.book_append_sheet(wb,buildConsent(),'Consent Log');XLSX.writeFile(wb,'EdUHK_SES6026_Full_Report.xlsx');toast('✓ Excel downloaded (3 sheets)');}catch(e){toast('Export error: '+e.message);}}
+function expStats(){if(!allData.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.writeFile(wb,'EdUHK_SES6026_Stats.xlsx');toast('✓ Statistics downloaded');}catch(e){toast('Export error: '+e.message);}}
+function expFiltered(){var d=filteredData.length?filteredData:allData;if(!d.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(d),'Filtered');XLSX.writeFile(wb,'EdUHK_SES6026_Filtered.xlsx');toast('✓ Exported '+d.length+' rows');}catch(e){toast('Export error: '+e.message);}}
+function expCSV(){if(!allData.length){toast('No data');return;}try{var hdr=['#','Name','Date','University','Tongue','Age','Gender','Mode','Usage','Tool','Understanding','Preference','Consented'],rows=[hdr.join(',')];allData.forEach(function(r,i){var q=function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"';};rows.push([i+1,q(r.name),q(r.date),q(r.university),q(r.tongue),q(r.age),q(r.gender),q(r.studyMode),r.usage||'',q(r.toolUsed),r.understanding||'',q(r.preference),'Yes'].join(','));});var blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='EdUHK_SES6026.csv';a.click();URL.revokeObjectURL(url);toast('✓ CSV downloaded');}catch(e){toast('Export error: '+e.message);}}
 
-// ── CREDENTIALS ───────────────────────────────────────────────────
-function saveCredentials() {
-  var sid = (document.getElementById('input-site-id').value||'').trim();
-  var tok = (document.getElementById('input-token').value||'').trim();
-  if (!sid || !tok) { showToast('Please enter both Site ID and Access Token'); return; }
-  localStorage.setItem('netlify_site_id', sid);
-  localStorage.setItem('netlify_token', tok);
-  _siteId = sid; _token = tok;
-  setText('creds-status', 'Saved ✓');
-  showToast('✓ Credentials saved — loading data…');
-  loadData();
-}
-function clearCredentials() {
-  localStorage.removeItem('netlify_site_id'); localStorage.removeItem('netlify_token');
-  _siteId=''; _token='';
-  var s=document.getElementById('input-site-id'), t=document.getElementById('input-token');
-  if(s)s.value=''; if(t)t.value='';
-  setText('creds-status','Not set');
-  showToast('Credentials cleared');
-  showBanner('warn','⚠ Credentials cleared. Enter your Site ID and Access Token to load data.');
-}
+function saveConfig(){var url=(document.getElementById('script-url-input').value||'').trim();if(!url){toast('Please enter the Script URL');return;}localStorage.setItem('gsheet_script_url',url);SCRIPT_URL=url;setText('cfg-status','Saved ✓');toast('✓ URL saved — loading data…');loadData();}
+function clearConfig(){localStorage.removeItem('gsheet_script_url');SCRIPT_URL='';var el=document.getElementById('script-url-input');if(el)el.value='';setText('cfg-status','Not configured');toast('Configuration cleared');setBanner('warn','⚠ Enter your Google Apps Script URL in ⚙ Data Management.');}
 
-// ── TOAST / SIGNOUT ───────────────────────────────────────────────
-function showToast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3500);}
+function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
 function signOut(){localStorage.removeItem('admin_auth');window.location.href='admin-login.html';}
 
-// ── BOOT ─────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', function() {
-  try {
-    // Pre-fill saved credentials
-    var sid=document.getElementById('input-site-id'), tok=document.getElementById('input-token');
-    if(sid&&_siteId) sid.value=_siteId;
-    if(tok&&_token)  tok.value=_token;
-    setText('creds-status', (_siteId&&_token)?'Saved ✓':'Not set');
-
-    // Init empty charts first so page renders correctly
-    safeInitCharts();
-    safeRenderTable();
-
-    // Then load data from Netlify
-    loadData();
-  } catch(e) { console.error('Boot error:', e); }
+document.addEventListener('DOMContentLoaded', function() {
+  checkAuth();
+  var dateEl=document.getElementById('topbar-date');
+  if(dateEl)dateEl.textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  var urlEl=document.getElementById('script-url-input');
+  if(urlEl&&SCRIPT_URL)urlEl.value=SCRIPT_URL;
+  setText('cfg-status',SCRIPT_URL?'Saved ✓':'Not configured');
+  document.querySelectorAll('.section').forEach(function(s){
+    if(s.id==='tab-overview'){s.style.display='block';s.classList.add('active');}
+    else{s.style.display='none';s.classList.remove('active');}
+  });
+  drawCharts();
+  renderTable();
+  loadData();
 });
-
-window.addEventListener('resize', function(){
-  clearTimeout(window._rt);
-  window._rt = setTimeout(safeInitCharts, 200);
-});
+window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(drawCharts,200);});
 </script>
 </body>
 </html>
