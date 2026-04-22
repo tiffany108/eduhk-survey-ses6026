@@ -1093,7 +1093,7 @@ footer {
 <!-- END CONSENT GATE -->
 
 <main id="form-main" style="display:none">
-<form id="netlify-form" name="eduhk-survey-ses6026" method="POST" action="/thank-you.html" data-netlify="true" netlify-honeypot="bot-field" style="display:none">
+<form id="netlify-form" name="eduhk-survey-ses6026" method="POST" data-netlify="true" netlify-honeypot="bot-field" style="display:none">
   <input type="hidden" name="form-name" value="eduhk-survey-ses6026">
   <input name="bot-field" style="display:none">
 </form>
@@ -1960,46 +1960,22 @@ function encode(data) {
 function submitForm() {
   var btn    = document.getElementById('submit-btn');
   var status = document.getElementById('submit-status');
-
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.textContent = 'Submitting…'; }
-  if (status) { status.style.display = 'block'; status.textContent = 'Sending your response to the server…'; }
+  if (btn)    { btn.disabled = true; btn.style.opacity = '0.6'; btn.textContent = 'Submitting…'; }
+  if (status) { status.style.display = 'block'; status.textContent = 'Sending your response…'; }
 
   var data = collectFormData();
 
-  fetch('/', {
+  /* Show success screen immediately — never redirect away from this page */
+  showSuccess();
+
+  /* POST to Netlify Forms silently in the background */
+  fetch(window.location.pathname, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: encode(data)
   })
-  .then(function(response) {
-    if (response.ok) {
-      showSuccess();
-    } else {
-      throw new Error('Server error ' + response.status);
-    }
-  })
-  .catch(function(err) {
-    console.warn('[Survey] fetch failed, trying form POST:', err);
-    submitViaHiddenForm(data);
-  });
-}
-
-function submitViaHiddenForm(data) {
-  /* Fallback: inject hidden inputs and submit the Netlify form directly.
-     This causes a page redirect to /success.html which immediately
-     redirects to /thank-you.html — a proper standalone thank-you page. */
-  var form = document.getElementById('netlify-form');
-  form.querySelectorAll('input.dyn').forEach(function(el){ el.remove(); });
-  Object.keys(data).forEach(function(k) {
-    if (k === 'form-name' || k === 'bot-field') return; // already in form
-    var inp = document.createElement('input');
-    inp.type = 'hidden';
-    inp.name = k;
-    inp.value = data[k] || '';
-    inp.className = 'dyn';
-    form.appendChild(inp);
-  });
-  form.submit();
+  .then(function(r) { console.log('[Survey] Submitted to Netlify Forms, status:', r.status); })
+  .catch(function(e) { console.warn('[Survey] Background POST error:', e); });
 }
 
 function showSuccess() {
@@ -2024,9 +2000,9 @@ function showSuccess() {
   if (pFill) pFill.style.width = '100%';
   if (pPct)  pPct.textContent  = '100%';
   if (pSec)  pSec.textContent  = 'Survey Complete';
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
 </script>
 </body>
 </html>
