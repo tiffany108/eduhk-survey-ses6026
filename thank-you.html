@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You — EdUHK Survey SES6026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0d1b2a; --gold: #b8963e; --gold-light: #d4b06a;
+  --cream: #f8f5f0; --rule: #e4dfd7; --ink: #1a1a1a; --ink-soft: #6b6b6b;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Sans 3', 'Helvetica Neue', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+header {
+  background: var(--navy);
+  padding: 18px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(184,150,62,0.3);
+}
+.inst-name {
+  font-size: 11px; font-weight: 600; letter-spacing: 2.5px;
+  text-transform: uppercase; color: var(--gold-light);
+}
+.inst-dept {
+  font-size: 10.5px; letter-spacing: 1.2px;
+  text-transform: uppercase; color: rgba(255,255,255,0.3);
+}
+.gold-rule { height: 2px; background: linear-gradient(90deg, var(--gold), var(--gold-light), transparent); }
+main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+.card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+  max-width: 540px;
+  width: 100%;
+  padding: 48px 44px;
+  text-align: center;
+}
+.mark {
+  width: 72px; height: 72px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  font-size: 28px; color: var(--gold);
+}
+h1 {
+  font-family: var(--font-display);
+  font-size: 30px; font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 14px;
+}
+p {
+  font-size: 15px; color: var(--ink-soft);
+  line-height: 1.7; margin-bottom: 10px;
+  max-width: 400px; margin-left: auto; margin-right: auto;
+}
+.record {
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 28px 0;
+  text-align: left;
+}
+.record-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+}
+.record-row {
+  display: flex; justify-content: space-between;
+  align-items: baseline; padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+}
+.record-row:last-child { border-bottom: none; }
+.record-key { color: var(--ink-soft); }
+.record-val { font-weight: 600; color: var(--ink); }
+.status-ok { color: #27ae60; font-weight: 700; }
+.contact {
+  font-size: 13px; color: var(--ink-soft);
+  line-height: 1.8; margin-top: 8px;
+}
+.contact a { color: var(--gold); text-decoration: none; }
+footer {
+  background: var(--navy);
+  padding: 20px 40px;
+  text-align: center;
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.3px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="inst-name">The Education University of Hong Kong</div>
+  <div class="inst-dept">SES6026 — MA Research Survey</div>
+</header>
+<div class="gold-rule"></div>
+
+<main>
+  <div class="card">
+    <div class="mark">✓</div>
+    <h1>Response Submitted</h1>
+    <p>Thank you for participating in this research on AI and second language learning at EdUHK.</p>
+    <p>Your response has been recorded and will contribute to the study.</p>
+
+    <div class="record">
+      <div class="record-label">Submission Record</div>
+      <div class="record-row">
+        <span class="record-key">Study</span>
+        <span class="record-val">SES6026 MA Thesis</span>
+      </div>
+      <div class="record-row">
+        <span class="record-key">Institution</span>
+        <span class="record-val">EdUHK</span>
+      </div>
+      <div class="record-row">
+        <span class="record-key">Date</span>
+        <span class="record-val" id="sub-date"></span>
+      </div>
+      <div class="record-row">
+        <span class="record-key">Status</span>
+        <span class="status-ok">✓ Consented &amp; Submitted</span>
+      </div>
+    </div>
+
+    <p class="contact">
+      For enquiries, contact David WONG at <strong>61255888</strong><br>
+      or supervisor Dr. James LENZER at
+      <a href="mailto:jhlenzerjr@eduhk.hk">jhlenzerjr@eduhk.hk</a>
+    </p>
+  </div>
+</main>
+
+<footer>
+  The Education University of Hong Kong &nbsp;·&nbsp;
+  Department of Science and Environmental Studies &nbsp;·&nbsp;
+  Supervised by Dr. James LENZER &nbsp;·&nbsp; Conducted by WONG Kwan Yiu David
+</footer>
+
+<script>
+  document.getElementById('sub-date').textContent =
+    new Date().toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+</script>
+</body>
+</html>

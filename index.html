@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EdUHK Research Survey — AI & Second Language Learning</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0d1b2a;
+  --navy-mid:  #162032;
+  --navy-soft: #1e2f45;
+  --gold:      #b8963e;
+  --gold-light:#d4b06a;
+  --gold-dim:  rgba(184,150,62,0.18);
+  --cream:     #f8f5f0;
+  --cream-dark:#f0ece4;
+  --white:     #ffffff;
+  --ink:       #1a1a1a;
+  --ink-mid:   #3d3d3d;
+  --ink-soft:  #6b6b6b;
+  --rule:      #e4dfd7;
+  --card-bg:   #ffffff;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+  --radius:    4px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Source Sans 3', 'Helvetica Neue', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LETTERHEAD ── */
+.letterhead {
+  background: var(--navy);
+  position: relative;
+  overflow: hidden;
+}
+.letterhead::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+.letterhead-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+  position: relative;
+  z-index: 1;
+}
+.inst-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.inst-name {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.inst-dept {
+  font-size: 10.5px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+.gold-rule {
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 50%, transparent 100%);
+}
+.hero { padding: 52px 0 48px; }
+.survey-type {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.survey-type::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--gold);
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3.5vw, 34px);
+  font-weight: 600;
+  font-style: italic;
+  color: #fff;
+  line-height: 1.3;
+  max-width: 580px;
+  margin-bottom: 32px;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 24px;
+}
+.meta-item {
+  padding-right: 32px;
+  margin-right: 32px;
+  border-right: 1px solid rgba(255,255,255,0.1);
+}
+.meta-item:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+.meta-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 3px;
+}
+.meta-value { font-size: 13.5px; color: rgba(255,255,255,0.7); }
+
+/* ── INFO PANELS ── */
+.info-section {
+  background: var(--navy-mid);
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.accordion-rail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+.acc-item { border-bottom: 1px solid rgba(255,255,255,0.07); }
+.acc-item:last-child { border-bottom: none; }
+.acc-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-align: left;
+  gap: 16px;
+  transition: color 0.2s;
+}
+.acc-trigger:hover { color: rgba(255,255,255,0.85); }
+.acc-trigger.open  { color: var(--gold-light); }
+.acc-label { display: flex; align-items: center; gap: 10px; }
+.acc-label .rn { font-style: italic; opacity: 0.7; font-family: var(--font-display); }
+.acc-chevron {
+  width: 18px; height: 18px;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  transition: all 0.3s;
+}
+.acc-trigger.open .acc-chevron {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+  transform: rotate(180deg);
+}
+.acc-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.acc-body.open { grid-template-rows: 1fr; }
+.acc-inner { overflow: hidden; }
+.acc-inner-pad {
+  padding: 0 0 22px 22px;
+  border-left: 1px solid rgba(184,150,62,0.2);
+}
+.acc-content {
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.8;
+}
+.acc-content h5 {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 16px 0 5px;
+}
+.acc-content h5:first-child { margin-top: 0; }
+.acc-content p { margin-bottom: 6px; color: rgba(255,255,255,0.55); }
+.acc-content strong { color: rgba(255,255,255,0.85); font-weight: 600; }
+.acc-content a { color: var(--gold-light); text-decoration: none; }
+.acc-content a:hover { text-decoration: underline; }
+.acc-highlight {
+  background: rgba(184,150,62,0.07);
+  border: 1px solid rgba(184,150,62,0.18);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin: 10px 0 0;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  line-height: 1.8;
+}
+.consent-strip {
+  background: rgba(0,0,0,0.15);
+  border-top: 1px solid rgba(184,150,62,0.12);
+  padding: 11px 40px;
+  text-align: center;
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.3px;
+}
+
+/* ── PROGRESS BAR ── */
+.progress-bar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: var(--navy);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.progress-track { height: 3px; background: rgba(255,255,255,0.06); }
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  width: 0%;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.progress-label {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 8px 40px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.progress-pct { color: var(--gold); font-variant-numeric: tabular-nums; }
+
+/* ── MAIN ── */
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 52px 40px 0;
+}
+
+/* ── SECTION HEADERS ── */
+.sec-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 20px;
+  margin: 56px 0 28px;
+}
+.sec-header:first-of-type { margin-top: 0; }
+.sec-number {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 400;
+  color: var(--rule);
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+  letter-spacing: -1px;
+}
+.sec-info {
+  flex: 1;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 10px;
+}
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.sec-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1.2;
+}
+
+/* ── QUESTION CARDS ── */
+.q-card {
+  background: var(--card-bg);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.q-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  border-radius: var(--radius) 0 0 var(--radius);
+  transition: background 0.2s;
+}
+.q-card:focus-within { border-color: rgba(184,150,62,0.35); box-shadow: var(--shadow-md); }
+.q-card:focus-within::before { background: var(--gold); }
+.q-card.info-card {
+  background: linear-gradient(135deg,#faf7f2 0%,var(--cream-dark) 100%);
+  border-color: rgba(184,150,62,0.22);
+}
+.q-card.info-card::before { background: var(--gold); }
+.info-card-text { font-size: 13.5px; color: var(--ink-mid); line-height: 1.75; }
+
+.q-number {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.q-text {
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.q-note {
+  font-size: 12.5px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+  font-style: italic;
+  padding-left: 10px;
+  border-left: 2px solid var(--rule);
+}
+
+/* ── PILLS ── */
+.pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill {
+  cursor: pointer;
+  padding: 8px 18px;
+  border-radius: 2px;
+  background: var(--cream);
+  color: var(--ink-mid);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid var(--rule);
+  transition: all 0.15s;
+  user-select: none;
+}
+.pill:hover { background: var(--cream-dark); border-color: var(--gold-light); color: var(--ink); }
+.pill.selected { background: var(--navy); color: #fff; border-color: var(--navy); box-shadow: 0 2px 8px rgba(13,27,42,0.18); }
+
+/* ── RANK ITEMS ── */
+.rank-group { display: flex; flex-direction: column; gap: 6px; }
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  background: var(--cream);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.rank-item:hover { background: var(--cream-dark); border-color: var(--gold-light); }
+.rank-item.selected { background: #f5f0e8; border-color: rgba(184,150,62,0.45); }
+.rank-badge {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.rank-item.selected .rank-badge { opacity: 1; }
+.rank-item-label { font-size: 13.5px; color: var(--ink-mid); line-height: 1.4; }
+.rank-item.selected .rank-item-label { color: var(--ink); }
+
+/* ── LIKERT ── */
+.likert-wrap { overflow-x: auto; padding-bottom: 2px; }
+.likert-options {
+  display: flex;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--cream);
+  min-width: 380px;
+}
+.likert-cell {
+  flex: 1;
+  text-align: center;
+  cursor: pointer;
+  padding: 17px 4px 13px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+  border-right: 1px solid var(--rule);
+}
+.likert-cell:last-child { border-right: none; }
+.likert-cell:hover { background: var(--cream-dark); color: var(--navy); }
+.likert-cell.selected { background: var(--navy); color: #fff; }
+.likert-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 0 2px;
+}
+.likert-anchor {
+  font-size: 11px;
+  color: var(--ink-soft);
+  max-width: 110px;
+  line-height: 1.4;
+  text-align: center;
+}
+.likert-anchor:first-child { text-align: left; }
+.likert-anchor:last-child  { text-align: right; }
+
+/* ── INPUTS ── */
+input[type=text] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink);
+  background: var(--cream);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+input[type=text]:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,150,62,0.1);
+  background: var(--white);
+}
+
+/* ── CONDITIONALS ── */
+.conditional { display: none; }
+.conditional.visible { display: block; }
+.nested-card {
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--rule);
+}
+.nested-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.nested-q {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+/* ── CONSENT GATE ── */
+#consent-gate {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 52px 40px 0;
+}
+.consent-doc {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+.consent-doc-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-soft) 100%);
+  padding: 32px 40px;
+  position: relative;
+}
+.consent-doc-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 40%, transparent 100%);
+}
+.consent-doc-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+.consent-doc-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.consent-doc-subtitle {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.5px;
+}
+.consent-doc-body {
+  padding: 36px 40px;
+}
+.consent-clause {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  background: var(--cream);
+  position: relative;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.consent-clause-num {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  flex-shrink: 0;
+  padding-top: 1px;
+  min-width: 20px;
+}
+.consent-clause-text {
+  font-size: 13.5px;
+  color: var(--ink-mid);
+  line-height: 1.75;
+}
+.consent-clause-text strong { color: var(--ink); font-weight: 600; }
+.consent-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 28px 0;
+}
+.consent-signoff-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.consent-signoff-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+.signoff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) {
+  .signoff-grid { grid-template-columns: 1fr; }
+  #consent-gate { padding: 32px 20px 0; }
+  .consent-doc-header { padding: 24px 20px; }
+  .consent-doc-body { padding: 24px 20px; }
+}
+.signoff-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.signoff-field input[type=text] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-bottom: 2px solid var(--navy);
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.signoff-field input[type=text]:focus {
+  border-color: var(--gold);
+  border-bottom-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(184,150,62,0.1);
+  background: var(--white);
+}
+.sig-field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.sig-canvas-wrap {
+  position: relative;
+  border: 1px solid var(--rule);
+  border-bottom: 2px solid var(--navy);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--cream);
+  overflow: hidden;
+  cursor: crosshair;
+}
+.sig-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100px;
+  touch-action: none;
+}
+.sig-canvas-wrap .sig-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(0,0,0,0.2);
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.sig-canvas-wrap.has-sig .sig-placeholder { opacity: 0; }
+.sig-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+.sig-clear {
+  font-size: 11px;
+  color: var(--ink-soft);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  letter-spacing: 0.5px;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+.sig-clear:hover { color: var(--gold); }
+.date-display {
+  padding: 10px 14px;
+  border: 1px solid var(--rule);
+  border-bottom: 2px solid var(--navy);
+  border-radius: var(--radius) var(--radius) 0 0;
+  background: var(--cream-dark);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--ink-mid);
+  font-weight: 500;
+}
+.consent-error {
+  background: #fdf0ef;
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #a93226;
+  margin-bottom: 18px;
+  display: none;
+}
+.consent-error.visible { display: block; }
+.consent-notice {
+  background: linear-gradient(135deg, #f5f0e8 0%, #efe9db 100%);
+  border: 1px solid rgba(184,150,62,0.25);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  color: var(--ink-mid);
+  line-height: 1.7;
+}
+.consent-notice strong { color: var(--ink); }
+
+/* ── SUBMIT ── */
+.submit-section {
+  margin: 56px 0 0;
+  padding: 40px;
+  background: var(--card-bg);
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--navy);
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+.submit-section p {
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  line-height: 1.7;
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  padding: 14px 48px;
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(13,27,42,0.22);
+}
+.btn-primary:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(13,27,42,0.3); }
+.btn-primary:active { transform: translateY(0); }
+.btn-arrow { transition: transform 0.2s; }
+.btn-primary:hover .btn-arrow { transform: translateX(4px); }
+
+/* ── SUCCESS ── */
+#success-screen {
+  display: none;
+  text-align: center;
+  padding: 80px 40px 60px;
+}
+.success-mark {
+  width: 64px; height: 64px;
+  border: 1.5px solid var(--gold);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 28px;
+  font-size: 24px;
+  color: var(--gold);
+}
+#success-screen h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 14px;
+}
+#success-screen p {
+  font-size: 15px;
+  color: var(--ink-soft);
+  line-height: 1.7;
+  max-width: 440px;
+  margin: 0 auto 8px;
+}
+#success-screen a { color: var(--gold); text-decoration: none; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--navy);
+  margin-top: 72px;
+  padding: 28px 40px;
+}
+.footer-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding-top: 24px;
+}
+.footer-left { font-size: 11px; color: rgba(255,255,255,0.28); line-height: 1.9; }
+.footer-right {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.55;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.q-card { animation: fadeUp 0.4s ease both; }
+
+@media (max-width: 600px) {
+  .letterhead-inner, .accordion-rail, main { padding-left: 20px; padding-right: 20px; }
+  .progress-label { padding-left: 20px; padding-right: 20px; }
+  .inst-bar { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .meta-item { border-right: none; padding-right: 0; margin-right: 0; }
+  .q-card { padding: 20px; }
+  .submit-section { padding: 28px 20px; }
+  .sec-number { font-size: 38px; }
+  footer { padding: 20px; margin-top: 48px; }
+  .consent-strip { padding: 11px 20px; }
+  .likert-cell { font-size: 15px; padding: 13px 2px 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LETTERHEAD ══ -->
+<header class="letterhead">
+  <div class="letterhead-inner">
+    <div class="inst-bar">
+      <div class="inst-name">The Education University of Hong Kong</div>
+      <div class="inst-dept">Dept. of Science &amp; Environmental Studies</div>
+    </div>
+    <div class="hero">
+      <div class="survey-type">MA Research Survey &nbsp;·&nbsp; SES6026</div>
+      <h1>Is Learning a Second Language Still Necessary in the Age of Artificial Intelligence?</h1>
+      <div class="hero-meta">
+        <div class="meta-item">
+          <div class="meta-label">Duration</div>
+          <div class="meta-value">10 – 15 minutes</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Format</div>
+          <div class="meta-value">Anonymous survey</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Participation</div>
+          <div class="meta-value">Voluntary</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Principal Investigator</div>
+          <div class="meta-value">WONG Kwan Yiu David</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="gold-rule"></div>
+</header>
+
+<!-- ══ INFO PANELS ══ -->
+<section class="info-section">
+  <div class="accordion-rail">
+
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label"><span class="rn">I.</span>&ensp;About This Research</span>
+        <div class="acc-chevron">▾</div>
+      </button>
+      <div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+        <div class="acc-content">
+          <h5>Research Aim</h5>
+          <p>This study investigates whether university students understand content delivered by instructors and how this affects their <strong>learning attitude, motivation, behaviour, and action</strong>. The project is supervised by <strong>Dr. James LENZER</strong> and conducted by <strong>WONG Kwan Yiu David</strong>, Department of Science and Environmental Studies, EdUHK.</p>
+          <h5>Your Participation</h5>
+          <div class="acc-highlight">Answer approximately 20 questions on your habits of using real-time language translation tools in class. This is a <strong>one-off participation</strong> of approximately <strong>10–15 minutes</strong>.</div>
+          <h5>Benefits &amp; Incentive</h5>
+          <p>You will have the opportunity to self-reflect on your use of translation tools in your learning process. A <strong>spending voucher</strong> (e.g. supermarket, bookstore) will be provided as a token of appreciation.</p>
+          <h5>Dissemination</h5>
+          <p>Results may be shared within the department and, if findings merit it, published in academic journals or presented at educational conferences.</p>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label"><span class="rn">II.</span>&ensp;Privacy &amp; Risks</span>
+        <div class="acc-chevron">▾</div>
+      </button>
+      <div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+        <div class="acc-content">
+          <h5>Potential Risks</h5>
+          <p><strong>None.</strong> There are no known risks or discomfort associated with participation in this study.</p>
+          <h5>Confidentiality</h5>
+          <p>All information will remain <strong>strictly confidential</strong>, identifiable only by codes known to the researcher. Your personal details will not be revealed in any publication or report.</p>
+          <h5>Voluntary Participation</h5>
+          <p>Your participation is entirely voluntary. You have the right to <strong>withdraw at any time</strong> without negative consequences. Information obtained may be used in future research while fully retaining your right to privacy.</p>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="acc-item">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label"><span class="rn">III.</span>&ensp;Consent to Participate</span>
+        <div class="acc-chevron">▾</div>
+      </button>
+      <div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+        <div class="acc-content">
+          <p>By submitting this questionnaire, you confirm that:</p>
+          <div class="acc-highlight">
+            ✔&ensp;You consent to participate in this research supervised by Dr. James LENZER and conducted by WONG Kwan Yiu David at EdUHK.<br><br>
+            ✔&ensp;You understand that findings may be published, but your personal details will not be revealed.<br><br>
+            ✔&ensp;The procedures, benefits, and risks have been explained. Your participation is <strong>voluntary</strong>.<br><br>
+            ✔&ensp;You acknowledge the right to question any part of the procedure and to withdraw at any time without consequence.
+          </div>
+        </div>
+      </div></div></div>
+    </div>
+
+    <div class="acc-item" style="border-bottom:none">
+      <button class="acc-trigger" onclick="toggleAcc(this)">
+        <span class="acc-label"><span class="rn">IV.</span>&ensp;Contact &amp; Ethics Enquiries</span>
+        <div class="acc-chevron">▾</div>
+      </button>
+      <div class="acc-body"><div class="acc-inner"><div class="acc-inner-pad">
+        <div class="acc-content">
+          <h5>Principal Investigator</h5>
+          <p>WONG Kwan Yiu David &emsp;·&emsp; Tel: <strong>61255888</strong></p>
+          <h5>Supervisor</h5>
+          <p>Dr. James LENZER &emsp;·&emsp; <a href="mailto:jhlenzerjr@eduhk.hk">jhlenzerjr@eduhk.hk</a></p>
+          <h5>Ethics Committee</h5>
+          <p>Human Research Ethics Committee, EdUHK<br>
+          <a href="mailto:hrec@eduhk.hk">hrec@eduhk.hk</a> &emsp;·&emsp; Research and Development Office, The Education University of Hong Kong</p>
+        </div>
+      </div></div></div>
+    </div>
+
+  </div>
+  <div class="consent-strip">By completing and submitting this survey you confirm your voluntary, informed consent to participate in this research</div>
+</section>
+
+<!-- ══ PROGRESS ══ -->
+<div class="progress-bar-wrap">
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="progress-label">
+    <span id="progress-section">Section 1 of 6 — Basic Information</span>
+    <span class="progress-pct" id="progress-pct">0%</span>
+  </div>
+</div>
+
+<!-- ══ SURVEY ══ -->
+<!-- ══ CONSENT GATE ══ -->
+<div id="consent-gate">
+
+  <div class="consent-doc">
+    <!-- Document Header -->
+    <div class="consent-doc-header">
+      <div class="consent-doc-eyebrow">Official Research Document</div>
+      <div class="consent-doc-title">Consent Form &amp; Participant Information Sheet</div>
+      <div class="consent-doc-subtitle">The Education University of Hong Kong &nbsp;·&nbsp; Department of Science &amp; Environmental Studies</div>
+    </div>
+
+    <div class="consent-doc-body">
+
+      <!-- Research Info -->
+      <div style="margin-bottom:24px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px">Research Overview</div>
+        <div style="font-size:13.5px;color:var(--ink-mid);line-height:1.8;margin-bottom:10px">
+          You are invited to participate in a research project supervised by <strong style="color:var(--ink)">Dr. James LENZER</strong> and conducted by <strong style="color:var(--ink)">WONG Kwan Yiu David</strong>, staff/students of the Department of Science and Environmental Studies, The Education University of Hong Kong.
+        </div>
+        <div style="font-size:13.5px;color:var(--ink-mid);line-height:1.8">
+          The research aims to investigate whether university students understand content delivered by instructors and how this affects their learning attitude, motivation, behaviour, and action. You will be asked to answer approximately 20 questions related to your habits of using real-time language translation tools in class activities. This is a one-off participation taking approximately <strong style="color:var(--ink)">10–15 minutes</strong>.
+        </div>
+      </div>
+
+      <div class="consent-divider"></div>
+
+      <!-- Consent Clauses -->
+      <div style="font-size:10px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:14px">Consent to Participate in Research</div>
+      <div style="font-size:13px;color:var(--ink-soft);margin-bottom:16px;font-style:italic">By signing below, I confirm that I have read and understood the following statements:</div>
+
+      <div class="consent-clause">
+        <div class="consent-clause-num">1.</div>
+        <div class="consent-clause-text">I hereby consent to participate in the captioned research supervised by <strong>Dr. James LENZER</strong> and conducted by <strong>WONG Kwan Yiu David</strong>, staff/students of the Department of Science and Environmental Studies in The Education University of Hong Kong.</div>
+      </div>
+
+      <div class="consent-clause">
+        <div class="consent-clause-num">2.</div>
+        <div class="consent-clause-text">I understand that information obtained from this research may be used in future research and may be published. However, my <strong>right to privacy will be retained</strong> — my personal details will not be revealed.</div>
+      </div>
+
+      <div class="consent-clause">
+        <div class="consent-clause-num">3.</div>
+        <div class="consent-clause-text">The procedure as set out in the information sheet has been fully explained. I understand the <strong>benefits and risks involved</strong>. My participation in the project is <strong>voluntary</strong>.</div>
+      </div>
+
+      <div class="consent-clause">
+        <div class="consent-clause-num">4.</div>
+        <div class="consent-clause-text">I acknowledge that I have the right to <strong>question any part of the procedure</strong> and can <strong>withdraw at any time without negative consequences</strong>. All information related to me will remain confidential, identifiable only by codes known to the researcher.</div>
+      </div>
+
+      <div class="consent-clause">
+        <div class="consent-clause-num">5.</div>
+        <div class="consent-clause-text">I understand that a <strong>spending voucher</strong> (e.g. supermarket, bookstore) will be used as a token of appreciation for completing the questionnaire, and that there are <strong>no known risks or discomfort</strong> associated with this study.</div>
+      </div>
+
+      <div class="consent-divider"></div>
+
+      <!-- Sign-off Section -->
+      <div class="consent-signoff-title">Participant Sign-off</div>
+      <div class="consent-signoff-sub">Please complete all fields below to confirm your consent before proceeding to the questionnaire.</div>
+
+      <div class="consent-notice">
+        <strong>Note:</strong> Your typed name and digital signature serve as your formal agreement to the consent terms above. This record is stored locally in your browser session only and is not transmitted to any server.
+      </div>
+
+      <div class="consent-error" id="consent-error">
+        Please complete all required fields — your full name and signature — before proceeding.
+      </div>
+
+      <div class="signoff-grid">
+        <!-- Name -->
+        <div class="signoff-field">
+          <label for="consent-name">Full Name of Participant <span style="color:#c0392b">*</span></label>
+          <input type="text" id="consent-name" placeholder="Type your full name…" autocomplete="name"
+                 oninput="checkConsentReady()">
+        </div>
+        <!-- Date -->
+        <div class="signoff-field">
+          <label>Date</label>
+          <input type="date" id="consent-date" style="width:100%;padding:10px 14px;border:1px solid var(--rule);border-bottom:2px solid var(--navy);border-radius:var(--radius) var(--radius) 0 0;font-family:var(--font-body);font-size:14px;color:var(--ink);background:var(--cream);outline:none;transition:border-color 0.2s,box-shadow 0.2s;" onfocus="this.style.borderColor='var(--gold)';this.style.boxShadow='0 0 0 3px rgba(184,150,62,0.1)'" onblur="this.style.borderColor='var(--rule)';this.style.boxShadow='none'">
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div class="sig-field" style="margin-bottom:24px">
+        <label>Signature of Participant <span style="color:#c0392b">*</span></label>
+        <div class="sig-canvas-wrap" id="sig-wrap">
+          <canvas id="sig-canvas"></canvas>
+          <div class="sig-placeholder">Draw your signature here…</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-clear" onclick="clearSig()">Clear signature</button>
+        </div>
+      </div>
+
+      <!-- Proceed Button -->
+      <div style="text-align:center;padding-top:8px">
+        <button class="btn-primary" id="consent-btn" onclick="submitConsent()" style="opacity:0.45;cursor:not-allowed" disabled>
+          I Agree &amp; Proceed to Questionnaire &nbsp;<span class="btn-arrow">→</span>
+        </button>
+        <div style="margin-top:14px;font-size:12px;color:var(--ink-soft)">
+          You may contact <a href="mailto:hrec@eduhk.hk" style="color:var(--gold)">hrec@eduhk.hk</a> with any ethics concerns.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Investigator sign block -->
+  <div style="margin-top:16px;padding:20px 28px;background:var(--white);border:1px solid var(--rule);border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;box-shadow:var(--shadow-sm)">
+    <div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Principal Investigator</div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;font-style:italic;color:var(--navy)">WONG Kwan Yiu David</div>
+      <div style="font-size:12px;color:var(--ink-soft);margin-top:2px">Dept. of Science &amp; Environmental Studies, EdUHK</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Supervisor</div>
+      <div style="font-family:var(--font-display);font-size:16px;font-weight:600;font-style:italic;color:var(--navy)">Dr. James LENZER</div>
+      <div style="font-size:12px;color:var(--ink-soft);margin-top:2px"><a href="mailto:jhlenzerjr@eduhk.hk" style="color:var(--ink-soft);text-decoration:none">jhlenzerjr@eduhk.hk</a></div>
+    </div>
+  </div>
+
+</div>
+<!-- END CONSENT GATE -->
+
+<main id="form-main" style="display:none">
+<form id="netlify-form" name="eduhk-survey-ses6026" method="POST" action="/thank-you.html" data-netlify="true" netlify-honeypot="bot-field" style="display:none">
+  <input type="hidden" name="form-name" value="eduhk-survey-ses6026">
+  <input name="bot-field" style="display:none">
+</form>
+
+  <!-- §1 BASIC INFORMATION -->
+  <div class="sec-header">
+    <div class="sec-number">01</div>
+    <div class="sec-info">
+      <div class="sec-label">Section One</div>
+      <div class="sec-title">Basic Information</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 1</div>
+    <div class="q-text">What is your mother tongue?</div>
+    <div class="pill-group" id="q1">
+      <div class="pill" onclick="selectOne(this,'q1')">Mandarin</div>
+      <div class="pill" onclick="selectOne(this,'q1')">Cantonese</div>
+      <div class="pill" onclick="selectOne(this,'q1')">English</div>
+      <div class="pill" onclick="selectOne(this,'q1','q1-other')">Others</div>
+    </div>
+    <div id="q1-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify your mother tongue…">
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 2</div>
+    <div class="q-text">What is your age?</div>
+    <div class="pill-group" id="q2">
+      <div class="pill" onclick="selectOne(this,'q2')">Below 18</div>
+      <div class="pill" onclick="selectOne(this,'q2')">18 – 21</div>
+      <div class="pill" onclick="selectOne(this,'q2')">22 – 25</div>
+      <div class="pill" onclick="selectOne(this,'q2')">26 – 29</div>
+      <div class="pill" onclick="selectOne(this,'q2')">30 or above</div>
+      <div class="pill" onclick="selectOne(this,'q2')">Prefer not to tell</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 3</div>
+    <div class="q-text">What is your gender?</div>
+    <div class="pill-group" id="q3">
+      <div class="pill" onclick="selectOne(this,'q3')">Male</div>
+      <div class="pill" onclick="selectOne(this,'q3')">Female</div>
+      <div class="pill" onclick="selectOne(this,'q3')">Prefer not to tell</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 4</div>
+    <div class="q-text">Where are you from?</div>
+    <div class="pill-group" id="q4">
+      <div class="pill" onclick="selectOne(this,'q4')">HKSAR</div>
+      <div class="pill" onclick="selectOne(this,'q4')">Mainland China</div>
+      <div class="pill" onclick="selectOne(this,'q4','q4-other')">Others</div>
+    </div>
+    <div id="q4-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 5</div>
+    <div class="q-text">Which university are you from or did you study at?</div>
+    <div class="q-note">If you attended more than one, please select the most recent.</div>
+    <div class="pill-group" id="q5">
+      <div class="pill" onclick="selectOne(this,'q5')">HKU</div>
+      <div class="pill" onclick="selectOne(this,'q5')">CUHK</div>
+      <div class="pill" onclick="selectOne(this,'q5')">HKUST</div>
+      <div class="pill" onclick="selectOne(this,'q5')">PolyU</div>
+      <div class="pill" onclick="selectOne(this,'q5')">CityU</div>
+      <div class="pill" onclick="selectOne(this,'q5')">EdUHK</div>
+      <div class="pill" onclick="selectOne(this,'q5')">HKBU</div>
+      <div class="pill" onclick="selectOne(this,'q5')">LU</div>
+      <div class="pill" onclick="selectOne(this,'q5','q5-other')">Others</div>
+    </div>
+    <div id="q5-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 6</div>
+    <div class="q-text">Are you a current student or alumni?</div>
+    <div class="pill-group" id="q6">
+      <div class="pill" onclick="selectOne(this,'q6'); showById('q6-current',true); showById('q6-alumni',false)">Current Student</div>
+      <div class="pill" onclick="selectOne(this,'q6'); showById('q6-alumni',true); showById('q6-current',false)">Alumni</div>
+    </div>
+    <div id="q6-current" class="conditional">
+      <div class="nested-card">
+        <div class="nested-label">Question 7 — Current Student</div>
+        <div class="nested-q">What type of degree are you enrolled in, and which year?</div>
+        <div class="pill-group" id="q7-type" style="margin-bottom:10px">
+          <div class="pill" onclick="selectOne(this,'q7-type')">Undergraduate</div>
+          <div class="pill" onclick="selectOne(this,'q7-type')">Masters</div>
+          <div class="pill" onclick="selectOne(this,'q7-type')">Doctorate</div>
+          <div class="pill" onclick="selectOne(this,'q7-type','q7-other')">Others</div>
+        </div>
+        <div id="q7-other" class="conditional" style="margin-bottom:10px">
+          <input type="text" placeholder="Please specify degree type…">
+        </div>
+        <div style="font-size:10px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px">Year of Study</div>
+        <div class="pill-group" id="q7-year">
+          <div class="pill" onclick="selectOne(this,'q7-year')">1</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">2</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">3</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">4</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">5</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">6</div>
+          <div class="pill" onclick="selectOne(this,'q7-year')">7</div>
+        </div>
+      </div>
+    </div>
+    <div id="q6-alumni" class="conditional">
+      <div class="nested-card">
+        <div class="nested-label">Question 8 — Alumni</div>
+        <div class="nested-q">What type of degree did you study, and in which year did you graduate?</div>
+        <div class="pill-group" id="q8-type" style="margin-bottom:10px">
+          <div class="pill" onclick="selectOne(this,'q8-type')">Undergraduate</div>
+          <div class="pill" onclick="selectOne(this,'q8-type')">Masters</div>
+          <div class="pill" onclick="selectOne(this,'q8-type')">Doctorate</div>
+          <div class="pill" onclick="selectOne(this,'q8-type','q8-other')">Others</div>
+        </div>
+        <div id="q8-other" class="conditional" style="margin-bottom:10px">
+          <input type="text" placeholder="Please specify…">
+        </div>
+        <input type="text" placeholder="Year of graduation (e.g. 2022)" style="max-width:260px">
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 9</div>
+    <div class="q-text">What subject area do or did you study?</div>
+    <div class="pill-group" id="q9">
+      <div class="pill" onclick="selectOne(this,'q9')">Arts</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Science</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Business</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Engineering</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Education</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Social Science</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Law</div>
+      <div class="pill" onclick="selectOne(this,'q9')">Medicine</div>
+      <div class="pill" onclick="selectOne(this,'q9','q9-other')">Others</div>
+    </div>
+    <div id="q9-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 10</div>
+    <div class="q-text">Are or were you a full-time or part-time student?</div>
+    <div class="pill-group" id="q10">
+      <div class="pill" onclick="selectOne(this,'q10')">Full-time</div>
+      <div class="pill" onclick="selectOne(this,'q10')">Part-time</div>
+    </div>
+  </div>
+
+  <!-- §2 MODE OF STUDY -->
+  <div class="sec-header">
+    <div class="sec-number">02</div>
+    <div class="sec-info">
+      <div class="sec-label">Section Two</div>
+      <div class="sec-title">Mode of Study</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 11</div>
+    <div class="q-text">What is your mode of study?</div>
+    <div class="pill-group" id="q11">
+      <div class="pill" onclick="selectOne(this,'q11'); showById('q12-card',false)">Online</div>
+      <div class="pill" onclick="selectOne(this,'q11'); showById('q12-card',false)">Face-to-face</div>
+      <div class="pill" onclick="selectOne(this,'q11'); showById('q12-card',true)">Blended</div>
+      <div class="pill" onclick="selectOne(this,'q11','q11-other'); showById('q12-card',false)">Others</div>
+    </div>
+    <div id="q11-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <div id="q12-card" class="conditional">
+    <div class="q-card">
+      <div class="q-number">Question 12</div>
+      <div class="q-text">What is the approximate proportion of face-to-face and online classes?</div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:center">
+        <label style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft)">
+          Face-to-face
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <input type="text" placeholder="0" style="width:72px;text-align:center">
+            <span style="color:var(--ink-soft);font-size:14px">%</span>
+          </div>
+        </label>
+        <label style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft)">
+          Online
+          <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+            <input type="text" placeholder="0" style="width:72px;text-align:center">
+            <span style="color:var(--ink-soft);font-size:14px">%</span>
+          </div>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- §3 TRANSLATION TOOLS -->
+  <div class="sec-header">
+    <div class="sec-number">03</div>
+    <div class="sec-info">
+      <div class="sec-label">Section Three</div>
+      <div class="sec-title">Habit of Using Real-Time Language Translation Tools</div>
+    </div>
+  </div>
+
+  <div class="q-card info-card">
+    <div class="info-card-text">From your point of view, please rate yourself according to your habit of using <strong>real-time language translation tools</strong> in class activities when <strong>English is delivered by the instructor</strong>.</div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 13</div>
+    <div class="q-text">How often do you use real-time language translation tools in class when instruction is delivered in English?</div>
+    <div class="likert-wrap">
+      <div class="likert-options" id="q13">
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(1)">1</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(2)">2</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(3)">3</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(4)">4</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(5)">5</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(6)">6</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q13'); handleQ13(7)">7</div>
+      </div>
+      <div class="likert-footer">
+        <div class="likert-anchor">Never use (0%)</div>
+        <div class="likert-anchor">Half the class (50%)</div>
+        <div class="likert-anchor">Always use (100%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="q14-wrap" class="conditional">
+    <div class="q-card">
+      <div class="q-number">Question 14 — For Those Who Never Use</div>
+      <div class="q-text">Why do you not use real-time language translation tools in class activities?</div>
+      <div class="q-note">You may prioritise up to three reasons by assigning numbers 1, 2, and 3.</div>
+      <div class="rank-group" id="q14">
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Good understanding in English</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Respect for the presenter</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Personal enjoyment</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Ability to focus on the presenter's non-verbal delivery</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Avoidance of misleading information after translation</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14')"><div class="rank-badge"></div><div class="rank-item-label">Data privacy concerns</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q14','q14-other')"><div class="rank-badge"></div><div class="rank-item-label">Others</div></div>
+      </div>
+      <div id="q14-other" class="conditional" style="margin-top:12px">
+        <input type="text" placeholder="Please specify…">
+      </div>
+    </div>
+  </div>
+
+  <div id="q15-wrap" class="conditional">
+    <div class="q-card">
+      <div class="q-number">Question 15</div>
+      <div class="q-text">Which real-time language translation tool do you use most often in class?</div>
+      <div class="pill-group" id="q15">
+        <div class="pill" onclick="selectOne(this,'q15')">ChatGPT</div>
+        <div class="pill" onclick="selectOne(this,'q15')">Google Translate</div>
+        <div class="pill" onclick="selectOne(this,'q15')">Google Gemini</div>
+        <div class="pill" onclick="selectOne(this,'q15')">Microsoft Copilot</div>
+        <div class="pill" onclick="selectOne(this,'q15')">Microsoft Translator</div>
+        <div class="pill" onclick="selectOne(this,'q15')">Anthropic's Claude</div>
+        <div class="pill" onclick="selectOne(this,'q15')">LectMate</div>
+        <div class="pill" onclick="selectOne(this,'q15')">JotMe</div>
+        <div class="pill" onclick="selectOne(this,'q15','q15-other')">Others</div>
+      </div>
+      <div id="q15-other" class="conditional" style="margin-top:12px">
+        <input type="text" placeholder="Please specify…">
+      </div>
+    </div>
+
+    <div class="q-card">
+      <div class="q-number">Question 16</div>
+      <div class="q-text">Why do you use real-time language translation tools in class activities?</div>
+      <div class="q-note">You may prioritise up to three reasons by assigning numbers 1, 2, and 3.</div>
+      <div class="rank-group" id="q16">
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">Insufficient English comprehension</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">Difficulty concentrating in class</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">Convenience</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">Ability to record and review content later</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">Better use of time</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16')"><div class="rank-badge"></div><div class="rank-item-label">To fulfil class attendance requirements</div></div>
+        <div class="rank-item" onclick="toggleRank(this,'q16','q16-other')"><div class="rank-badge"></div><div class="rank-item-label">Others</div></div>
+      </div>
+      <div id="q16-other" class="conditional" style="margin-top:12px">
+        <input type="text" placeholder="Please specify…">
+      </div>
+    </div>
+  </div>
+
+  <!-- §4 UNDERSTANDING -->
+  <div class="sec-header">
+    <div class="sec-number">04</div>
+    <div class="sec-info">
+      <div class="sec-label">Section Four</div>
+      <div class="sec-title">Understanding of Instructor's Content Delivery</div>
+    </div>
+  </div>
+
+  <div class="q-card info-card">
+    <div class="info-card-text">From your point of view, please rate your understanding of the instructor's delivery of content in class activities when <strong>English is the medium of instruction</strong>.</div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 17</div>
+    <div class="q-text">How well do you understand the instructor's delivery of content?</div>
+    <div class="likert-wrap">
+      <div class="likert-options" id="q17">
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">1</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">2</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">3</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">4</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">5</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">6</div>
+        <div class="likert-cell" onclick="selectLikert(this,'q17')">7</div>
+      </div>
+      <div class="likert-footer">
+        <div class="likert-anchor">Don't understand at all (0%)</div>
+        <div class="likert-anchor">Moderately (50%)</div>
+        <div class="likert-anchor">Fully understand (100%)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 18</div>
+    <div class="q-text">What factors affect your understanding of the instructor's delivery of content?</div>
+    <div class="q-note">You may prioritise up to three factors by assigning numbers 1, 2, and 3.</div>
+    <div class="rank-group" id="q18">
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Use of vocabulary</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Intonation</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Accent</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Fluency</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Speed of delivery</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Voice quality</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18')"><div class="rank-badge"></div><div class="rank-item-label">Physical environment</div></div>
+      <div class="rank-item" onclick="toggleRank(this,'q18','q18-other')"><div class="rank-badge"></div><div class="rank-item-label">Others</div></div>
+    </div>
+    <div id="q18-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <!-- §5 ENGLISH QUALIFICATION -->
+  <div class="sec-header">
+    <div class="sec-number">05</div>
+    <div class="sec-info">
+      <div class="sec-label">Section Five</div>
+      <div class="sec-title">English Language Qualification</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 19</div>
+    <div class="q-text">Have you taken any English language proficiency test before?</div>
+    <div class="pill-group" id="q19">
+      <div class="pill" onclick="selectOne(this,'q19'); showById('q19-detail',true)">Yes</div>
+      <div class="pill" onclick="selectOne(this,'q19'); showById('q19-detail',false)">No</div>
+      <div class="pill" onclick="selectOne(this,'q19'); showById('q19-detail',false)">Prefer not to tell</div>
+    </div>
+    <div id="q19-detail" class="conditional">
+      <div class="nested-card">
+        <div class="nested-label">Question 20</div>
+        <div class="nested-q">Which English language test have you taken? <span style="font-weight:400;color:var(--ink-soft);font-size:13.5px">(State the one you performed best in.)</span></div>
+        <div class="pill-group" id="q20" style="margin-bottom:16px">
+          <div class="pill" onclick="selectOne(this,'q20')">IELTS</div>
+          <div class="pill" onclick="selectOne(this,'q20')">TOEFL</div>
+          <div class="pill" onclick="selectOne(this,'q20')">CET-4</div>
+          <div class="pill" onclick="selectOne(this,'q20')">CET-6</div>
+          <div class="pill" onclick="selectOne(this,'q20')">TEM-8</div>
+          <div class="pill" onclick="selectOne(this,'q20')">HKDSE</div>
+          <div class="pill" onclick="selectOne(this,'q20')">IB</div>
+          <div class="pill" onclick="selectOne(this,'q20')">GCE</div>
+          <div class="pill" onclick="selectOne(this,'q20')">IGCSE</div>
+          <div class="pill" onclick="selectOne(this,'q20','q20-other')">Others</div>
+        </div>
+        <div id="q20-other" class="conditional" style="margin-bottom:14px">
+          <input type="text" placeholder="Please specify test name…">
+        </div>
+        <div class="nested-label" style="margin-top:18px">Question 21</div>
+        <div class="nested-q">What was your examination result?</div>
+        <input type="text" placeholder="State your score, mark, or level attained (e.g. IELTS 7.0)" style="max-width:380px">
+      </div>
+    </div>
+  </div>
+
+  <!-- §6 ONLINE DEGREE -->
+  <div class="sec-header">
+    <div class="sec-number">06</div>
+    <div class="sec-info">
+      <div class="sec-label">Section Six</div>
+      <div class="sec-title">Views on Online Degrees</div>
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 22</div>
+    <div class="q-text">If both online and face-to-face modes were available for a university programme, which would you prefer?</div>
+    <div class="pill-group" id="q22">
+      <div class="pill" onclick="selectOne(this,'q22')">Online</div>
+      <div class="pill" onclick="selectOne(this,'q22')">Face-to-face</div>
+      <div class="pill" onclick="selectOne(this,'q22')">Prefer not to tell</div>
+      <div class="pill" onclick="selectOne(this,'q22','q22-other')">Others</div>
+    </div>
+    <div id="q22-other" class="conditional" style="margin-top:12px">
+      <input type="text" placeholder="Please specify…">
+    </div>
+  </div>
+
+  <div class="q-card">
+    <div class="q-number">Question 23</div>
+    <div class="q-text">Do you have a bias towards an online degree?</div>
+    <div class="pill-group" id="q23">
+      <div class="pill" onclick="selectOne(this,'q23'); showById('q24-wrap',true); showById('q25-wrap',false)">Yes</div>
+      <div class="pill" onclick="selectOne(this,'q23'); showById('q24-wrap',false); showById('q25-wrap',true)">No</div>
+      <div class="pill" onclick="selectOne(this,'q23'); showById('q24-wrap',false); showById('q25-wrap',false)">Prefer not to tell</div>
+    </div>
+
+    <div id="q24-wrap" class="conditional">
+      <div class="nested-card">
+        <div class="nested-label">Question 24</div>
+        <div class="nested-q">Why do you have a bias towards an online degree?</div>
+        <div class="q-note" style="margin-bottom:12px">You may prioritise up to three reasons by assigning numbers 1, 2, and 3.</div>
+        <div class="rank-group" id="q24">
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Less recognised by employers and the public</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Not effective for learning online</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Negative impact on eyes and health</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Influenced by academic agents and peers' advice</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Technical issues (microphone, internet connectivity)</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Online degrees are generally less expensive</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Communication barriers (time zone, language, cultural differences)</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Insufficient digital skills</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24')"><div class="rank-badge"></div><div class="rank-item-label">Inconvenient</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q24','q24-other')"><div class="rank-badge"></div><div class="rank-item-label">Others</div></div>
+        </div>
+        <div id="q24-other" class="conditional" style="margin-top:12px">
+          <input type="text" placeholder="Please specify…">
+        </div>
+      </div>
+    </div>
+
+    <div id="q25-wrap" class="conditional">
+      <div class="nested-card">
+        <div class="nested-label">Question 25</div>
+        <div class="nested-q">What reasons lead you to accept an online degree?</div>
+        <div class="q-note" style="margin-bottom:12px">You may prioritise up to three reasons by assigning numbers 1, 2, and 3.</div>
+        <div class="rank-group" id="q25">
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Time efficiency</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Lower cost compared to face-to-face programmes</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Convenience</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Less competitive, easier to gain admission</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Less demanding, easier to graduate</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Certificate makes no distinction from face-to-face mode</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Growing recognition — ongoing trend following COVID-19</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Reduced stress through social distancing</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Primary concern is obtaining the degree, not the mode</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25')"><div class="rank-badge"></div><div class="rank-item-label">Opportunity to develop digital skills in class</div></div>
+          <div class="rank-item" onclick="toggleRank(this,'q25','q25-other')"><div class="rank-badge"></div><div class="rank-item-label">Others</div></div>
+        </div>
+        <div id="q25-other" class="conditional" style="margin-top:12px">
+          <input type="text" placeholder="Please specify…">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-section">
+    <p>Please review your responses before submitting. By submitting this questionnaire you confirm your voluntary, informed consent to participate in this research.</p>
+    <button class="btn-primary" id="submit-btn" onclick="submitForm()">
+      Submit Questionnaire &nbsp;<span class="btn-arrow">→</span>
+    </button>
+    <div id="submit-status" style="margin-top:14px;font-size:13px;color:var(--ink-soft);display:none"></div>
+  </div>
+
+</main>
+
+  <!-- SUCCESS -->
+  <div id="success-screen">
+    <div class="success-mark">✓</div>
+    <h2>Thank You, <span id="success-name">Participant</span></h2>
+    <p>Your consent has been recorded and your survey response has been submitted. This will contribute to the research on AI and second language learning at EdUHK.</p>
+    <div style="margin:32px auto;max-width:480px;background:var(--cream);border:1px solid var(--rule);border-radius:var(--radius);padding:20px 24px;text-align:left">
+      <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px">Consent Record</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.8">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:8px">
+          <span style="color:var(--ink-soft)">Participant</span>
+          <strong id="success-name-copy" style="color:var(--ink)"></strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:8px">
+          <span style="color:var(--ink-soft)">Date</span>
+          <strong id="success-date" style="color:var(--ink)"></strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--rule);padding-bottom:8px;margin-bottom:8px">
+          <span style="color:var(--ink-soft)">Study</span>
+          <span style="color:var(--ink)">SES6026 MA Thesis</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:var(--ink-soft)">Status</span>
+          <span style="color:#27ae60;font-weight:600">✓ Consented &amp; Submitted</span>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:13px;margin-top:8px;color:var(--ink-soft)">
+      For enquiries, contact David WONG at <strong style="color:var(--ink)">61255888</strong><br>
+      or supervisor Dr. James LENZER at <a href="mailto:jhlenzerjr@eduhk.hk">jhlenzerjr@eduhk.hk</a>
+    </p>
+  </div>
+
+
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      The Education University of Hong Kong &nbsp;·&nbsp; Department of Science and Environmental Studies<br>
+      Supervised by Dr. James LENZER &nbsp;·&nbsp; Conducted by WONG Kwan Yiu David &nbsp;·&nbsp; MA Thesis SES6026
+    </div>
+    <div class="footer-right">EdUHK · 2025</div></div><div style="text-align:center;padding:8px 40px 20px;border-top:1px solid rgba(255,255,255,0.04)"><a href="admin-login.html" style="font-size:10px;color:rgba(255,255,255,0.15);text-decoration:none;letter-spacing:1px">Admin</a></div
+  </div>
+</footer>
+
+
+<script>
+/* ════════════════════════════════════════════
+   EdUHK SES6026 Survey — Complete Script
+════════════════════════════════════════════ */
+
+/* ── 1. CONSENT: Set default date ── */
+window.addEventListener('DOMContentLoaded', function () {
+
+  var today = new Date();
+  var yyyy  = today.getFullYear();
+  var mm    = String(today.getMonth() + 1).padStart(2, '0');
+  var dd    = String(today.getDate()).padStart(2, '0');
+  var dateInput = document.getElementById('consent-date');
+  if (dateInput) dateInput.value = yyyy + '-' + mm + '-' + dd;
+
+  /* ── 2. CONSENT: Signature canvas ── */
+  var canvas = document.getElementById('sig-canvas');
+  var wrap   = document.getElementById('sig-wrap');
+  if (!canvas || !wrap) return;
+
+  var drawing = false;
+  var hasSig  = false;
+
+  function resizeCanvas() {
+    var rect = canvas.getBoundingClientRect();
+    if (rect.width === 0) return;
+    var dpr = window.devicePixelRatio || 1;
+    var tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width  = canvas.width;
+    tmpCanvas.height = canvas.height;
+    tmpCanvas.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    var ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    if (hasSig) ctx.drawImage(tmpCanvas, 0, 0, rect.width, rect.height);
+  }
+
+  requestAnimationFrame(function() { requestAnimationFrame(function() { resizeCanvas(); }); });
+  window.addEventListener('resize', function () { resizeCanvas(); if (!hasSig) { wrap.classList.remove('has-sig'); checkConsentReady(); } });
+
+  function getPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var src  = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  function startDraw(e) { e.preventDefault(); drawing = true; var p = getPos(e); var ctx = canvas.getContext('2d'); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+  function doDraw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    var p = getPos(e);
+    var ctx = canvas.getContext('2d');
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#0d1b2a';
+    ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    if (!hasSig) { hasSig = true; wrap.classList.add('has-sig'); checkConsentReady(); }
+  }
+  function endDraw() { drawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mousemove', doDraw);
+  canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove',  doDraw,    { passive: false });
+  canvas.addEventListener('touchend',   endDraw);
+
+  window._sigHasSig = function () { return hasSig; };
+  window._clearSig  = function () {
+    var dpr = window.devicePixelRatio || 1;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    hasSig = false; wrap.classList.remove('has-sig'); checkConsentReady();
+  };
+
+  updateProgress();
+});
+
+/* ── 3. CONSENT helpers ── */
+function clearSig() { if (window._clearSig) window._clearSig(); }
+
+function checkConsentReady() {
+  var nameEl = document.getElementById('consent-name');
+  var dateEl = document.getElementById('consent-date');
+  var btn    = document.getElementById('consent-btn');
+  if (!btn) return;
+  var ready = nameEl && nameEl.value.trim().length > 1 &&
+              dateEl && dateEl.value.trim().length > 0 &&
+              window._sigHasSig && window._sigHasSig();
+  btn.disabled        = !ready;
+  btn.style.opacity   = ready ? '1' : '0.45';
+  btn.style.cursor    = ready ? 'pointer' : 'not-allowed';
+}
+
+function submitConsent() {
+  var nameEl = document.getElementById('consent-name');
+  var dateEl = document.getElementById('consent-date');
+  var errEl  = document.getElementById('consent-error');
+  var name   = nameEl ? nameEl.value.trim() : '';
+  var date   = dateEl ? dateEl.value.trim() : '';
+  var sig    = window._sigHasSig ? window._sigHasSig() : false;
+
+  if (!name || !date || !sig) { if (errEl) errEl.classList.add('visible'); return; }
+  if (errEl) errEl.classList.remove('visible');
+
+  window._consentName = name;
+  window._consentDate = date;
+
+  var gate = document.getElementById('consent-gate');
+  gate.style.transition = 'opacity 0.4s ease';
+  gate.style.opacity    = '0';
+  setTimeout(function () {
+    gate.style.display = 'none';
+    var main = document.getElementById('form-main');
+    main.style.display    = 'block';
+    main.style.opacity    = '0';
+    main.style.transition = 'opacity 0.4s ease';
+    requestAnimationFrame(function () { requestAnimationFrame(function () { main.style.opacity = '1'; }); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 400);
+}
+
+/* ── 4. ACCORDION ── */
+function toggleAcc(btn) {
+  var body   = btn.nextElementSibling;
+  var isOpen = body.classList.contains('open');
+  document.querySelectorAll('.acc-body').forEach(function (b) { b.classList.remove('open'); });
+  document.querySelectorAll('.acc-trigger').forEach(function (t) { t.classList.remove('open'); });
+  if (!isOpen) { body.classList.add('open'); btn.classList.add('open'); }
+}
+
+/* ── 5. SURVEY: pill selection ── */
+function selectOne(el, groupId, conditionalId) {
+  document.querySelectorAll('#' + groupId + ' .pill').forEach(function (p) { p.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.querySelectorAll('[id^="' + groupId + '-"]').forEach(function (c) {
+    if (c.classList.contains('conditional')) c.classList.remove('visible');
+  });
+  if (conditionalId) { var ce = document.getElementById(conditionalId); if (ce) ce.classList.add('visible'); }
+  updateProgress();
+}
+
+function showById(id, show) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  if (show) el.classList.add('visible'); else el.classList.remove('visible');
+}
+
+/* ── 6. LIKERT ── */
+function selectLikert(el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .likert-cell').forEach(function (c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  updateProgress();
+}
+
+/* ── 7. Q13 branch ── */
+function handleQ13(val) {
+  showById('q14-wrap', val === 1);
+  showById('q15-wrap', val !== 1);
+}
+
+/* ── 8. RANKING (up to 3) ── */
+function toggleRank(el, groupId, conditionalId) {
+  var group    = document.getElementById(groupId);
+  var selected = group.querySelectorAll('.rank-item.selected');
+  if (el.classList.contains('selected')) {
+    el.classList.remove('selected');
+    renumber(groupId);
+    if (conditionalId) { var ce = document.getElementById(conditionalId); if (ce) ce.classList.remove('visible'); }
+  } else {
+    if (selected.length >= 3) return;
+    el.classList.add('selected');
+    el.querySelector('.rank-badge').textContent = selected.length + 1;
+    if (conditionalId) { var ce2 = document.getElementById(conditionalId); if (ce2) ce2.classList.add('visible'); }
+  }
+  updateProgress();
+}
+
+function renumber(groupId) {
+  var n = 1;
+  document.querySelectorAll('#' + groupId + ' .rank-item.selected').forEach(function (el) {
+    el.querySelector('.rank-badge').textContent = n++;
+  });
+}
+
+/* ── 9. PROGRESS BAR ── */
+var SECTIONS = ['Basic Information','Mode of Study','Translation Tool Habits','Content Understanding','English Qualification','Views on Online Degrees'];
+function updateProgress() {
+  var answered = 0;
+  ['q1','q2','q3','q4','q5','q6','q9','q10','q11','q22','q23'].forEach(function (id) {
+    if (document.querySelector('#' + id + ' .pill.selected')) answered++;
+  });
+  ['q13','q17'].forEach(function (id) {
+    if (document.querySelector('#' + id + ' .likert-cell.selected')) answered++;
+  });
+  var total  = 13;
+  var pct    = Math.min(100, Math.round((answered / total) * 100));
+  var fillEl = document.getElementById('progress-fill');
+  var pctEl  = document.getElementById('progress-pct');
+  var secEl  = document.getElementById('progress-section');
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (pctEl)  pctEl.textContent  = pct + '%';
+  var secIdx = Math.min(5, Math.floor((answered / total) * 6));
+  if (secEl)  secEl.textContent  = 'Section ' + (secIdx + 1) + ' of 6 — ' + SECTIONS[secIdx];
+}
+
+/* ── 10. DATA CAPTURE HELPERS ── */
+function getSelectedPill(groupId) {
+  var el = document.querySelector('#' + groupId + ' .pill.selected');
+  return el ? el.textContent.trim() : '';
+}
+function getSelectedLikert(groupId) {
+  var el = document.querySelector('#' + groupId + ' .likert-cell.selected');
+  return el ? parseInt(el.textContent.trim(), 10) : null;
+}
+function getRanked(groupId) {
+  var items = document.querySelectorAll('#' + groupId + ' .rank-item.selected');
+  var result = [];
+  items.forEach(function(el) {
+    var badge = el.querySelector('.rank-badge');
+    var label = el.querySelector('.rank-item-label');
+    if (badge && label) result.push({ rank: parseInt(badge.textContent, 10), label: label.textContent.trim() });
+  });
+  result.sort(function(a,b){ return a.rank - b.rank; });
+  return result.map(function(x){ return x.rank + '. ' + x.label; }).join('; ');
+}
+function getTextInput(selector) {
+  var el = document.querySelector(selector);
+  return el ? el.value.trim() : '';
+}
+
+/* ── 11. COLLECT ALL ANSWERS ── */
+function collectResponses() {
+  var q1val  = getSelectedPill('q1');
+  var q4val  = getSelectedPill('q4');
+  var q5val  = getSelectedPill('q5');
+  var q6val  = getSelectedPill('q6');
+  var q9val  = getSelectedPill('q9');
+  var q11val = getSelectedPill('q11');
+  var q15val = getSelectedPill('q15');
+  var q19val = getSelectedPill('q19');
+  var q22val = getSelectedPill('q22');
+  var q23val = getSelectedPill('q23');
+
+  return {
+    id:              'resp_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
+    submittedAt:     new Date().toISOString(),
+    consentName:     window._consentName || '',
+    consentDate:     window._consentDate || '',
+    q1_motherTongue: q1val === 'Others' ? ('Others: ' + getTextInput('#q1-other input')) : q1val,
+    q2_age:          getSelectedPill('q2'),
+    q3_gender:       getSelectedPill('q3'),
+    q4_origin:       q4val === 'Others' ? ('Others: ' + getTextInput('#q4-other input')) : q4val,
+    q5_university:   q5val === 'Others' ? ('Others: ' + getTextInput('#q5-other input')) : q5val,
+    q6_status:       q6val,
+    q7_degreeType:   getSelectedPill('q7-type'),
+    q7_year:         getSelectedPill('q7-year'),
+    q8_degreeType:   getSelectedPill('q8-type'),
+    q8_gradYear:     getTextInput('#q6-alumni input[type=text]'),
+    q9_subject:      q9val === 'Others' ? ('Others: ' + getTextInput('#q9-other input')) : q9val,
+    q10_fullPartTime: getSelectedPill('q10'),
+    q11_studyMode:   q11val === 'Others' ? ('Others: ' + getTextInput('#q11-other input')) : q11val,
+    q12_ftfPct:      getTextInput('#q12-card input:first-of-type'),
+    q12_onlinePct:   getTextInput('#q12-card input:last-of-type'),
+    q13_usageFreq:   getSelectedLikert('q13'),
+    q14_reasonsNotUsing: getRanked('q14'),
+    q15_toolUsed:    q15val === 'Others' ? ('Others: ' + getTextInput('#q15-other input')) : q15val,
+    q16_reasonsUsing:getRanked('q16'),
+    q17_understanding: getSelectedLikert('q17'),
+    q18_understandingFactors: getRanked('q18'),
+    q19_hasTest:     q19val,
+    q20_testTaken:   getSelectedPill('q20'),
+    q21_testResult:  getTextInput('#q19-detail input[type=text]'),
+    q22_preference:  q22val === 'Others' ? ('Others: ' + getTextInput('#q22-other input')) : q22val,
+    q23_onlineBias:  q23val,
+    q24_biasReasons: getRanked('q24'),
+    q25_acceptReasons: getRanked('q25'),
+  };
+}
+
+/* ── 12. SUBMIT TO NETLIFY FORMS ── */
+function collectFormData() {
+  var q1val  = getSelectedPill('q1');
+  var q4val  = getSelectedPill('q4');
+  var q5val  = getSelectedPill('q5');
+  var q6val  = getSelectedPill('q6');
+  var q9val  = getSelectedPill('q9');
+  var q11val = getSelectedPill('q11');
+  var q15val = getSelectedPill('q15');
+  var q19val = getSelectedPill('q19');
+  var q22val = getSelectedPill('q22');
+  var q23val = getSelectedPill('q23');
+
+  return {
+    'form-name':              'eduhk-survey-ses6026',
+    'submitted-at':           new Date().toISOString(),
+    'consent-name':           window._consentName || '',
+    'consent-date':           window._consentDate || '',
+    'q1-mother-tongue':       q1val === 'Others' ? ('Others: ' + getTextInput('#q1-other input')) : q1val,
+    'q2-age':                 getSelectedPill('q2'),
+    'q3-gender':              getSelectedPill('q3'),
+    'q4-origin':              q4val === 'Others' ? ('Others: ' + getTextInput('#q4-other input')) : q4val,
+    'q5-university':          q5val === 'Others' ? ('Others: ' + getTextInput('#q5-other input')) : q5val,
+    'q6-status':              q6val,
+    'q7-degree-type':         getSelectedPill('q7-type'),
+    'q7-year':                getSelectedPill('q7-year'),
+    'q8-degree-type':         getSelectedPill('q8-type'),
+    'q8-grad-year':           getTextInput('#q6-alumni input[type=text]'),
+    'q9-subject':             q9val === 'Others' ? ('Others: ' + getTextInput('#q9-other input')) : q9val,
+    'q10-full-part-time':     getSelectedPill('q10'),
+    'q11-study-mode':         q11val === 'Others' ? ('Others: ' + getTextInput('#q11-other input')) : q11val,
+    'q13-usage-freq':         String(getSelectedLikert('q13') || ''),
+    'q14-reasons-not-using':  getRanked('q14'),
+    'q15-tool-used':          q15val === 'Others' ? ('Others: ' + getTextInput('#q15-other input')) : q15val,
+    'q16-reasons-using':      getRanked('q16'),
+    'q17-understanding':      String(getSelectedLikert('q17') || ''),
+    'q18-understanding-factors': getRanked('q18'),
+    'q19-has-test':           q19val,
+    'q20-test-taken':         getSelectedPill('q20'),
+    'q21-test-result':        getTextInput('#q19-detail input[type=text]'),
+    'q22-preference':         q22val === 'Others' ? ('Others: ' + getTextInput('#q22-other input')) : q22val,
+    'q23-online-bias':        q23val,
+    'q24-bias-reasons':       getRanked('q24'),
+    'q25-accept-reasons':     getRanked('q25'),
+  };
+}
+
+function encode(data) {
+  return Object.keys(data)
+    .map(function(k) { return encodeURIComponent(k) + '=' + encodeURIComponent(data[k] || ''); })
+    .join('&');
+}
+
+function submitForm() {
+  var btn    = document.getElementById('submit-btn');
+  var status = document.getElementById('submit-status');
+
+  if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; btn.textContent = 'Submitting…'; }
+  if (status) { status.style.display = 'block'; status.textContent = 'Sending your response to the server…'; }
+
+  var data = collectFormData();
+
+  fetch('/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: encode(data)
+  })
+  .then(function(response) {
+    if (response.ok) {
+      showSuccess();
+    } else {
+      throw new Error('Server error ' + response.status);
+    }
+  })
+  .catch(function(err) {
+    console.warn('[Survey] fetch failed, trying form POST:', err);
+    submitViaHiddenForm(data);
+  });
+}
+
+function submitViaHiddenForm(data) {
+  /* Fallback: inject hidden inputs and submit the Netlify form directly.
+     This causes a page redirect to /success.html which immediately
+     redirects to /thank-you.html — a proper standalone thank-you page. */
+  var form = document.getElementById('netlify-form');
+  form.querySelectorAll('input.dyn').forEach(function(el){ el.remove(); });
+  Object.keys(data).forEach(function(k) {
+    if (k === 'form-name' || k === 'bot-field') return; // already in form
+    var inp = document.createElement('input');
+    inp.type = 'hidden';
+    inp.name = k;
+    inp.value = data[k] || '';
+    inp.className = 'dyn';
+    form.appendChild(inp);
+  });
+  form.submit();
+}
+
+function showSuccess() {
+  var participantName = window._consentName || 'Participant';
+  var dateStr = window._consentDate
+    ? new Date(window._consentDate).toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+    : new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+
+  var ns = document.getElementById('success-name');
+  var nc = document.getElementById('success-name-copy');
+  var nd = document.getElementById('success-date');
+  if (ns) ns.textContent = participantName;
+  if (nc) nc.textContent = participantName;
+  if (nd) nd.textContent = dateStr;
+
+  document.getElementById('form-main').style.display    = 'none';
+  document.getElementById('success-screen').style.display = 'block';
+
+  var pFill = document.getElementById('progress-fill');
+  var pPct  = document.getElementById('progress-pct');
+  var pSec  = document.getElementById('progress-section');
+  if (pFill) pFill.style.width = '100%';
+  if (pPct)  pPct.textContent  = '100%';
+  if (pSec)  pSec.textContent  = 'Survey Complete';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

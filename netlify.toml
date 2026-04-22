@@ -1,0 +1,4 @@
+# Netlify configuration for EdUHK SES6026 Survey
+
+[build]
+  publish = "."

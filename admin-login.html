@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — EdUHK Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0d1b2a;
+  --navy-mid:  #162032;
+  --navy-soft: #1e2f45;
+  --gold:      #b8963e;
+  --gold-light:#d4b06a;
+  --cream:     #f8f5f0;
+  --cream-dark:#f0ece4;
+  --white:     #ffffff;
+  --ink:       #1a1a1a;
+  --ink-mid:   #3d3d3d;
+  --ink-soft:  #6b6b6b;
+  --rule:      #e4dfd7;
+  --error:     #c0392b;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Source Sans 3', 'Helvetica Neue', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--navy);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background grid texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Decorative gold orb */
+body::after {
+  content: '';
+  position: fixed;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(184,150,62,0.07) 0%, transparent 70%);
+  top: -200px; right: -150px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.topbar-brand {
+  display: flex;
+  flex-direction: column;
+}
+.topbar-inst {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.topbar-name {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.5);
+  margin-top: 2px;
+}
+.topbar-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 5px 12px;
+  border-radius: 2px;
+}
+
+/* ── MAIN ── */
+.login-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.login-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 20px; height: 1px;
+  background: var(--gold);
+}
+
+.login-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  font-style: italic;
+  color: #ffffff;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* Gold divider */
+.gold-line {
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--gold-light) 40%, transparent 100%);
+  margin-bottom: 36px;
+}
+
+/* Form */
+.field {
+  margin-bottom: 20px;
+}
+.field label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 8px;
+}
+.field input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.field input::placeholder { color: rgba(255,255,255,0.2); }
+.field input:focus {
+  border-color: var(--gold);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 3px rgba(184,150,62,0.12);
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.remember input[type=checkbox] { accent-color: var(--gold); width: 14px; height: 14px; }
+.remember span { font-size: 12.5px; color: rgba(255,255,255,0.4); }
+
+.error-msg {
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.3);
+  border-radius: 4px;
+  padding: 11px 14px;
+  font-size: 13px;
+  color: #e74c3c;
+  margin-bottom: 20px;
+  display: none;
+}
+.error-msg.visible { display: block; }
+
+.btn-login {
+  width: 100%;
+  padding: 14px;
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(184,150,62,0.25);
+}
+.btn-login:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(184,150,62,0.35);
+}
+.btn-login:active { transform: translateY(0); }
+
+.login-hint {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,0.2);
+}
+.login-hint strong { color: rgba(255,255,255,0.35); }
+
+/* ── FOOTER ── */
+.login-footer {
+  text-align: center;
+  padding: 20px 40px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  font-size: 11px;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.3px;
+}
+.login-footer a {
+  color: rgba(255,255,255,0.25);
+  text-decoration: none;
+}
+.login-footer a:hover { color: var(--gold); }
+
+@media (max-width: 480px) {
+  .topbar { padding: 16px 20px; }
+  .login-wrap { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-inst">EdUHK · SES6026</div>
+      <div class="topbar-name">Research Survey Administration</div>
+    </div>
+    <div class="topbar-badge">Restricted Access</div>
+  </div>
+
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-eyebrow">Administrator Portal</div>
+      <div class="login-title">Sign in to<br>the Dashboard</div>
+      <div class="login-subtitle">Access is restricted to authorised research personnel only.</div>
+      <div class="gold-line"></div>
+
+      <div class="error-msg" id="error-msg">
+        Incorrect username or password. Please try again.
+      </div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" autocomplete="username"
+               onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password"
+               onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+
+      <div class="field-row">
+        <label class="remember">
+          <input type="checkbox" id="remember">
+          <span>Remember me</span>
+        </label>
+      </div>
+
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+
+      <div class="login-hint">
+        Default credentials: <strong>admin</strong> / <strong>eduhk2025</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    &copy; 2025 The Education University of Hong Kong &nbsp;&middot;&nbsp;
+    <a href="index.html">&larr; Back to Survey</a>
+  </div>
+
+</div>
+<script>
+function doLogin() {
+  var u = document.getElementById('username').value.trim();
+  var p = document.getElementById('password').value;
+  var err = document.getElementById('error-msg');
+  if (u === 'admin' && p === 'eduhk2025') {
+    // Use localStorage so auth persists across tabs and page reloads
+    localStorage.setItem('admin_auth', '1');
+    window.location.href = 'admin-dashboard.html';
+  } else {
+    err.classList.add('visible');
+    document.getElementById('password').value = '';
+    document.getElementById('password').focus();
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — EdUHK Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy:      #0d1b2a;
+  --navy-mid:  #162032;
+  --navy-soft: #1e2f45;
+  --gold:      #b8963e;
+  --gold-light:#d4b06a;
+  --gold-dim:  rgba(184,150,62,0.15);
+  --cream:     #f8f5f0;
+  --cream-dark:#f0ece4;
+  --white:     #ffffff;
+  --ink:       #1a1a1a;
+  --ink-mid:   #3d3d3d;
+  --ink-soft:  #6b6b6b;
+  --rule:      #e4dfd7;
+  --green:     #27ae60;
+  --sidebar-w: 240px;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'Source Sans 3', 'Helvetica Neue', sans-serif;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 32px rgba(0,0,0,0.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  overflow: hidden;
+}
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+.sidebar-inner { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-logo-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+.sidebar-logo-name {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.3;
+}
+
+/* Gold accent line */
+.sidebar-gold { height: 1px; background: linear-gradient(90deg, var(--gold), transparent); margin: 0; }
+
+.sidebar-nav {
+  padding: 20px 0;
+  flex: 1;
+}
+.nav-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.2);
+  padding: 0 20px;
+  margin: 16px 0 8px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  text-decoration: none;
+  user-select: none;
+}
+.nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.04); }
+.nav-item.active {
+  color: var(--gold-light);
+  background: rgba(184,150,62,0.08);
+  border-left-color: var(--gold);
+}
+.nav-icon { font-size: 14px; width: 18px; text-align: center; }
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid rgba(184,150,62,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  color: var(--gold-light);
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-name { font-size: 12.5px; color: rgba(255,255,255,0.6); font-weight: 500; }
+.user-role { font-size: 10.5px; color: rgba(255,255,255,0.25); }
+.btn-signout {
+  width: 100%;
+  padding: 8px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.35);
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+}
+.btn-signout:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+
+/* ── MAIN AREA ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 36px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.topbar-date {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(13,27,42,0.2);
+}
+.btn-export:hover { background: var(--navy-soft); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(13,27,42,0.3); }
+.btn-export-gold {
+  background: var(--gold);
+  color: var(--navy);
+  box-shadow: 0 2px 8px rgba(184,150,62,0.25);
+}
+.btn-export-gold:hover { background: var(--gold-light); box-shadow: 0 4px 16px rgba(184,150,62,0.35); }
+
+/* ── PAGE CONTENT ── */
+.page-content {
+  padding: 32px 36px 48px;
+  flex: 1;
+}
+
+.page-section {
+  display: none;
+}
+.page-section.active { display: block; }
+
+/* ── STAT CARDS ── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--rule);
+}
+.stat-card.accent::after { background: var(--gold); }
+.stat-card.green::after  { background: var(--green); }
+.stat-card.navy::after   { background: var(--navy); }
+.stat-card.blue::after   { background: #2980b9; }
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-sub {
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.stat-change {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* ── CHART GRID ── */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.chart-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.chart-card.full { grid-column: 1 / -1; }
+.chart-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.chart-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: 0.2px;
+}
+.chart-sub {
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.chart-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 3px 9px;
+  border-radius: 2px;
+}
+
+/* SVG Bar chart */
+.bar-chart { width: 100%; overflow: visible; }
+.bar-group { cursor: default; }
+.bar-rect {
+  transition: opacity 0.15s;
+  rx: 2;
+}
+.bar-group:hover .bar-rect { opacity: 0.8; }
+.bar-label { font-family: var(--font-body); font-size: 10px; fill: var(--ink-soft); }
+.bar-value { font-family: var(--font-body); font-size: 10px; font-weight: 600; fill: var(--navy); }
+
+/* Donut chart */
+.donut-wrap { display: flex; align-items: center; gap: 24px; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.legend-item { display: flex; align-items: center; gap: 8px; }
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+.legend-label { font-size: 12px; color: var(--ink-mid); flex: 1; }
+.legend-pct { font-size: 12px; font-weight: 600; color: var(--navy); }
+
+/* Likert distribution bars */
+.likert-dist { display: flex; flex-direction: column; gap: 10px; }
+.dist-row { display: flex; align-items: center; gap: 10px; }
+.dist-num { font-size: 12px; font-weight: 700; color: var(--navy); width: 16px; text-align: center; flex-shrink: 0; }
+.dist-bar-wrap { flex: 1; background: var(--cream); border-radius: 2px; height: 22px; overflow: hidden; }
+.dist-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  display: flex; align-items: center; padding: 0 8px;
+}
+.dist-bar-label { font-size: 10.5px; font-weight: 600; color: #fff; white-space: nowrap; }
+.dist-count { font-size: 11.5px; color: var(--ink-soft); width: 48px; text-align: right; flex-shrink: 0; }
+
+/* ── RESPONSE TABLE ── */
+.table-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--rule);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.table-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+}
+.table-controls { display: flex; align-items: center; gap: 10px; }
+.search-box {
+  padding: 7px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--gold); background: var(--white); }
+.filter-select {
+  padding: 7px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--ink-mid);
+  background: var(--cream);
+  outline: none;
+  cursor: pointer;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+thead th {
+  background: var(--cream);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--navy); }
+thead th.sorted { color: var(--gold); }
+tbody tr {
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.1s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--cream); }
+tbody td { padding: 11px 16px; color: var(--ink-mid); }
+tbody td:first-child { color: var(--navy); font-weight: 600; font-family: var(--font-display); font-style: italic; }
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.badge-green { background: rgba(39,174,96,0.1); color: #1e8449; }
+.badge-navy  { background: rgba(13,27,42,0.08); color: var(--navy); }
+.badge-gold  { background: var(--gold-dim); color: #8a6d10; }
+
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-top: 1px solid var(--rule);
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+.pagination-btns { display: flex; gap: 4px; }
+.pg-btn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--white);
+  font-size: 12px;
+  color: var(--ink-mid);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.pg-btn:hover { background: var(--cream-dark); border-color: var(--gold-light); }
+.pg-btn.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+/* ── SECTION TITLE ── */
+.section-hd {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+.section-hd-num {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 400;
+  color: var(--rule);
+  line-height: 1;
+  flex-shrink: 0;
+}
+.section-hd-info { border-bottom: 1px solid var(--rule); padding-bottom: 8px; flex: 1; }
+.section-hd-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 3px;
+}
+.section-hd-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: var(--navy);
+  color: #fff;
+  padding: 13px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index: 1000;
+  border-left: 3px solid var(--gold);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .chart-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .page-content { padding: 20px; }
+  .topbar { padding: 0 20px; }
+}
+
+/* ── EXPORT DROPDOWN ── */
+.exp-wrap { position: relative; }
+.btn-exp-caret { font-size: 8px; margin-left: 4px; transition: transform .2s; }
+.exp-dropdown {
+  position: absolute; right: 0; top: calc(100% + 6px);
+  background: #fff; border: 1px solid var(--rule);
+  border-radius: 4px; box-shadow: 0 8px 32px rgba(0,0,0,.14);
+  min-width: 230px; z-index: 500; display: none;
+}
+.exp-dropdown.open { display: block; }
+.exp-drop-hdr {
+  padding: 9px 14px; font-size: 9px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--ink-soft); border-bottom: 1px solid var(--rule);
+}
+.exp-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; cursor: pointer;
+  transition: background .15s; border-bottom: 1px solid var(--rule);
+}
+.exp-item:last-child { border-bottom: none; }
+.exp-item:hover { background: var(--cream); }
+.exp-icon {
+  width: 32px; height: 32px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.exp-icon.xl { background: #1d6f42; color: #fff; }
+.exp-icon.cs { background: var(--navy); color: #fff; }
+.exp-item-info { flex: 1; }
+.exp-item-name { font-size: 12.5px; font-weight: 600; color: var(--navy); }
+.exp-item-desc { font-size: 11px; color: var(--ink-soft); margin-top: 1px; }
+
+</style>
+
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar">
+  <div class="sidebar-inner">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-tag">EdUHK · SES6026</div>
+      <div class="sidebar-logo-name">Research Survey<br>Administration</div>
+    </div>
+    <div class="sidebar-gold"></div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Analytics</div>
+      <div class="nav-item active" id="nav-overview" onclick="showSection('overview',this)"><span class="nav-icon">◈</span> Overview</div>
+      <div class="nav-item" id="nav-responses" onclick="showSection('responses',this)"><span class="nav-icon">≡</span> All Responses</div>
+      <div class="nav-item" id="nav-demographics" onclick="showSection('demographics',this)"><span class="nav-icon">◑</span> Demographics</div>
+      <div class="nav-item" id="nav-translation" onclick="showSection('translation',this)"><span class="nav-icon">⟳</span> Translation Tools</div>
+      <div class="nav-section-label">Export</div>
+      <div class="nav-item" onclick="expAll()"><span class="nav-icon">↓</span> Full Excel Report</div>
+      <div class="nav-item" onclick="expStats()"><span class="nav-icon">↓</span> Summary Statistics</div>
+      <div class="nav-item" onclick="expFiltered()"><span class="nav-icon">↓</span> Filtered View</div>
+      <div class="nav-item" onclick="expCSV()"><span class="nav-icon">↓</span> Raw CSV</div>
+      <div class="nav-section-label">Settings</div>
+      <div class="nav-item" onclick="window.location.href='index.html'"><span class="nav-icon">←</span> View Survey</div>
+      <div class="nav-item" id="nav-admin" onclick="showSection('admin',this)"><span class="nav-icon">⚙</span> Data Management</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar">A</div>
+        <div><div class="user-name">Administrator</div><div class="user-role">Principal Investigator</div></div>
+      </div>
+      <button class="btn-signout" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Overview</div>
+    <div class="topbar-right">
+      <div class="topbar-date" id="topbar-date"></div>
+      <button onclick="refreshData()" style="padding:7px 16px;background:var(--cream);border:1px solid var(--rule);border-radius:4px;font-family:var(--font-body);font-size:12px;color:var(--ink-mid);cursor:pointer;transition:all 0.15s;" onmouseover="this.style.background='#e8f5e9';this.style.borderColor='#a5d6a7'" onmouseout="this.style.background='var(--cream)';this.style.borderColor='var(--rule)'">⟳ Refresh Data</button>
+      <div class="exp-wrap">
+        <button class="btn-export btn-export-gold" onclick="toggleDrop()">↓ &nbsp;Export <span class="btn-exp-caret" id="exp-caret">▾</span></button>
+        <div class="exp-dropdown" id="exp-dropdown">
+          <div class="exp-drop-hdr">Choose Export Format</div>
+          <div class="exp-item" onclick="expAll();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Full Excel Report</div><div class="exp-item-desc">3 sheets: responses, stats &amp; consent log</div></div></div>
+          <div class="exp-item" onclick="expStats();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Summary Statistics Only</div><div class="exp-item-desc">All aggregated counts and percentages</div></div></div>
+          <div class="exp-item" onclick="expFiltered();closeDrop()"><div class="exp-icon xl">XL</div><div class="exp-item-info"><div class="exp-item-name">Filtered View</div><div class="exp-item-desc">Current search / filter results only</div></div></div>
+          <div class="exp-item" onclick="expCSV();closeDrop()"><div class="exp-icon cs">CSV</div><div class="exp-item-info"><div class="exp-item-name">Raw CSV</div><div class="exp-item-desc">Plain comma-separated for SPSS / R</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Banner -->
+  <div id="data-source-banner" style="padding:8px 36px;font-size:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid #e0e0e0;"></div>
+
+  <div class="page-content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="page-section active" id="sec-overview" style="display:block">
+      <div class="stat-grid">
+        <div class="stat-card accent">
+          <div class="stat-label">Total Responses</div>
+          <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub" id="stat-total-sub">&nbsp;</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Consented</div>
+          <div class="stat-value" id="stat-consented">—</div>
+          <div class="stat-sub" id="stat-consent-rate">100% consent rate</div>
+        </div>
+        <div class="stat-card navy">
+          <div class="stat-label">Avg. Tool Usage</div>
+          <div class="stat-value" id="stat-avg-usage">—</div>
+          <div class="stat-sub">Out of 7-point scale (Q13)</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Avg. Understanding</div>
+          <div class="stat-value" id="stat-avg-understand">—</div>
+          <div class="stat-sub">Out of 7-point scale (Q17)</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Mother Tongue</div><div class="chart-sub">Distribution of participants</div></div><div class="chart-tag">Q1</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="tongue-donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
+            <div class="donut-legend" id="tongue-donut-legend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Age Distribution</div><div class="chart-sub">Participant age groups</div></div><div class="chart-tag">Q2</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="age-donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
+            <div class="donut-legend" id="age-donut-legend"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Translation Tool Usage Frequency</div><div class="chart-sub">1 = Never · 7 = Always</div></div><div class="chart-tag">Q13</div></div>
+          <div class="likert-dist" id="likert-usage"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Content Understanding Level</div><div class="chart-sub">1 = None · 7 = Full</div></div><div class="chart-tag">Q17</div></div>
+          <div class="likert-dist" id="likert-understand"></div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">University Affiliation</div><div class="chart-sub">Participant institutions</div></div><div class="chart-tag">Q5</div></div>
+          <svg class="bar-chart" id="uni-chart" height="160"></svg>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Most Used Translation Tool</div><div class="chart-sub">Among those who use tools (ratings 2–7)</div></div><div class="chart-tag">Q15</div></div>
+          <svg class="bar-chart" id="tool-chart" height="140"></svg>
+        </div>
+      </div>
+    </div><!-- /overview -->
+
+    <!-- ══ RESPONSES ══ -->
+    <div class="page-section" id="sec-responses" style="display:none">
+      <div class="section-hd">
+        <div class="section-hd-num" id="resp-count">—</div>
+        <div class="section-hd-info">
+          <div class="section-hd-label">Complete Survey</div>
+          <div class="section-hd-title">All Participant Responses</div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Response Records</div>
+          <div class="table-controls">
+            <input class="search-box" id="search-box" type="text" placeholder="Search by name or university…" oninput="filterTable()">
+            <select class="filter-select" id="filter-uni" onchange="filterTable()">
+              <option value="">All Universities</option>
+              <option>EdUHK</option><option>HKU</option><option>CUHK</option>
+              <option>HKUST</option><option>PolyU</option><option>CityU</option>
+              <option>HKBU</option><option>LU</option>
+            </select>
+            <button class="btn-export" onclick="exportTableXLSX()">↓ Export</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table id="responses-table">
+            <thead>
+              <tr>
+                <th onclick="sortTable(0)">Participant</th>
+                <th onclick="sortTable(1)">Date</th>
+                <th onclick="sortTable(2)">University</th>
+                <th onclick="sortTable(3)">Degree</th>
+                <th onclick="sortTable(4)">Mother Tongue</th>
+                <th onclick="sortTable(5)">Tool Usage</th>
+                <th onclick="sortTable(6)">Understanding</th>
+                <th onclick="sortTable(7)">Mode</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+        <div class="table-pagination">
+          <div id="pg-info">—</div>
+          <div class="pagination-btns" id="pg-btns"></div>
+        </div>
+      </div>
+    </div><!-- /responses -->
+
+    <!-- ══ DEMOGRAPHICS ══ -->
+    <div class="page-section" id="sec-demographics" style="display:none">
+      <div class="section-hd">
+        <div class="section-hd-num" id="demo-count">—</div>
+        <div class="section-hd-info">
+          <div class="section-hd-label">Section Analysis</div>
+          <div class="section-hd-title">Demographics Breakdown</div>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Gender</div></div><div class="chart-tag">Q3</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="gender-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
+            <div class="donut-legend" id="gender-donut-legend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Origin</div></div><div class="chart-tag">Q4</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="origin-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
+            <div class="donut-legend" id="origin-donut-legend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Student Status</div></div><div class="chart-tag">Q6</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="status-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
+            <div class="donut-legend" id="status-donut-legend"></div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Study Mode</div></div><div class="chart-tag">Q11</div></div>
+          <div class="donut-wrap">
+            <svg class="donut-svg" id="mode-donut-svg" width="110" height="110" viewBox="0 0 110 110"></svg>
+            <div class="donut-legend" id="mode-donut-legend"></div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Subject Area</div><div class="chart-sub">Fields of study</div></div><div class="chart-tag">Q9</div></div>
+          <svg class="bar-chart" id="subject-chart" height="140"></svg>
+        </div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Mode Preference (if both available)</div><div class="chart-sub">Online vs face-to-face preference</div></div><div class="chart-tag">Q22</div></div>
+          <svg class="bar-chart" id="pref-chart" height="120"></svg>
+        </div>
+      </div>
+    </div><!-- /demographics -->
+
+    <!-- ══ TRANSLATION TOOLS ══ -->
+    <div class="page-section" id="sec-translation" style="display:none">
+      <div class="section-hd">
+        <div class="section-hd-num" id="trans-count">—</div>
+        <div class="section-hd-info">
+          <div class="section-hd-label">Section Three &amp; Four</div>
+          <div class="section-hd-title">Translation Tools &amp; Understanding</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card accent">
+          <div class="stat-label">Never Use (Rating 1)</div>
+          <div class="stat-value" id="stat-never">—</div>
+          <div class="stat-sub" id="stat-never-pct">of respondents</div>
+        </div>
+        <div class="stat-card navy">
+          <div class="stat-label">Regular Users (4+)</div>
+          <div class="stat-value" id="stat-regular">—</div>
+          <div class="stat-sub" id="stat-regular-pct">of respondents</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Top Tool Used</div>
+          <div class="stat-value" id="stat-top-tool" style="font-size:22px;margin-top:4px">—</div>
+          <div class="stat-sub" id="stat-top-tool-pct">of tool users</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Top Reason (Use)</div>
+          <div class="stat-value" id="stat-top-reason" style="font-size:16px;margin-top:6px">—</div>
+          <div class="stat-sub">Rank #1 most cited</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Translation Tool Usage Frequency</div><div class="chart-sub">1 = Never · 7 = Always</div></div><div class="chart-tag">Q13</div></div>
+          <div class="likert-dist" id="likert-usage-2"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">Content Understanding Level</div><div class="chart-sub">1 = None · 7 = Full</div></div><div class="chart-tag">Q17</div></div>
+          <div class="likert-dist" id="likert-understand-2"></div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Most Used Translation Tool</div><div class="chart-sub">Among those who use tools (Q13 ≥ 2)</div></div><div class="chart-tag">Q15</div></div>
+          <svg class="bar-chart" id="tool-chart-2" height="140"></svg>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Reasons for NOT Using Translation Tools</div><div class="chart-sub">Top ranked reasons — Q13 = 1 (never use)</div></div><div class="chart-tag">Q14</div></div>
+          <svg class="bar-chart" id="no-reason-chart" height="140"></svg>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Reasons FOR Using Translation Tools</div><div class="chart-sub">Top ranked reasons — Q13 ≥ 2</div></div><div class="chart-tag">Q16</div></div>
+          <svg class="bar-chart" id="use-reason-chart" height="140"></svg>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-card full">
+          <div class="chart-header"><div><div class="chart-title">Factors Affecting Understanding of Instructor</div><div class="chart-sub">Top ranked factors cited by participants</div></div><div class="chart-tag">Q18</div></div>
+          <svg class="bar-chart" id="understand-chart" height="140"></svg>
+        </div>
+      </div>
+    </div><!-- /translation -->
+
+    <!-- ══ DATA MANAGEMENT ══ -->
+    <div class="page-section" id="sec-admin" style="display:none">
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:14px 18px;margin-bottom:24px;font-size:13px;color:#5d4e00;line-height:1.7">
+        <strong>⚙ One-time setup required</strong> — Paste your Netlify Site ID and Access Token below, then click <strong>Save &amp; Load Data</strong> to connect this dashboard to your live survey responses.
+      </div>
+      <div class="section-hd">
+        <div class="section-hd-num">⚙</div>
+        <div class="section-hd-info">
+          <div class="section-hd-label">Admin Only</div>
+          <div class="section-hd-title">Netlify Forms Connection</div>
+        </div>
+      </div>
+      <div style="max-width:580px">
+        <div class="chart-card" style="border-top:3px solid var(--gold);margin-bottom:16px">
+          <div class="chart-header"><div><div class="chart-title">Connect to Netlify Forms</div><div class="chart-sub">Enter your credentials to load real survey responses</div></div></div>
+          <p style="font-size:13px;color:var(--ink-mid);margin-bottom:20px;line-height:1.9">
+            <strong>How to get your credentials (one-time setup):</strong><br>
+            1. Go to <a href="https://app.netlify.com" target="_blank" style="color:var(--gold)">app.netlify.com</a> → your site → <strong>Site Settings → General</strong><br>
+            2. Copy the <strong>Site ID</strong> (e.g. <code style="font-size:11px">abc12345-6789-abcd-ef01-234567890abc</code>)<br>
+            3. Go to your <strong>User avatar → User Settings → Applications → New access token</strong><br>
+            4. Give it any name, copy the token, paste both below
+          </p>
+          <div style="margin-bottom:14px">
+            <label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px">Netlify Site ID</label>
+            <input id="input-site-id" type="text" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              style="width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:4px;font-family:monospace;font-size:13px;outline:none;background:var(--cream);color:var(--ink)">
+          </div>
+          <div style="margin-bottom:20px">
+            <label style="display:block;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:6px">Personal Access Token</label>
+            <input id="input-token" type="password" placeholder="Paste your Netlify personal access token"
+              style="width:100%;padding:10px 14px;border:1px solid var(--rule);border-radius:4px;font-family:monospace;font-size:13px;outline:none;background:var(--cream);color:var(--ink)">
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button onclick="saveCredentials()" style="padding:10px 24px;background:var(--navy);color:#fff;border:none;border-radius:4px;font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;">Save &amp; Load Data</button>
+            <button onclick="clearCredentials()" style="padding:10px 16px;background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:4px;font-family:var(--font-body);font-size:12px;cursor:pointer;">Clear Credentials</button>
+          </div>
+          <div style="margin-top:16px;padding:12px 14px;background:var(--cream);border-radius:4px;font-size:12px;color:var(--ink-soft);display:flex;gap:20px;flex-wrap:wrap">
+            <span>Responses loaded: <strong id="admin-count" style="color:var(--navy)">—</strong></span>
+            <span>Credentials saved: <strong id="creds-status" style="color:var(--navy)">—</strong></span>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header"><div><div class="chart-title">How It Works</div></div></div>
+          <div style="font-size:13px;color:var(--ink-mid);line-height:1.9">
+            <div>✓ Survey answers are <strong>POST</strong>ed directly to Netlify's servers when participants submit</div>
+            <div>✓ View raw submissions anytime at <a href="https://app.netlify.com" target="_blank" style="color:var(--gold)">app.netlify.com → Forms</a></div>
+            <div>✓ This dashboard fetches them via the <strong>Netlify API</strong> using your credentials</div>
+            <div>✓ Set up <strong>email alerts</strong> per submission: Netlify → Forms → Settings → Email notifications</div>
+            <div>✓ All Excel &amp; CSV exports use the live Netlify data</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /admin -->
+
+  </div><!-- /page-content -->
+</div><!-- /main -->
+
+<!-- Detail Modal -->
+<div id="detail-modal" style="display:none;position:fixed;inset:0;background:rgba(13,27,42,0.55);z-index:900;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:4px;box-shadow:0 16px 64px rgba(0,0,0,0.22);max-width:540px;width:100%;max-height:80vh;overflow:hidden;display:flex;flex-direction:column">
+    <div style="background:var(--navy);padding:20px 24px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px">Response Detail</div>
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:600;font-style:italic;color:#fff">Full Submission Record</div>
+      </div>
+      <button onclick="closeDetail()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);width:32px;height:32px;border-radius:4px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">&times;</button>
+    </div>
+    <div id="detail-body" style="overflow-y:auto;padding:20px 24px;flex:1"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── AUTH CHECK ───────────────────────────────────────────────────
+if (!localStorage.getItem('admin_auth')) {
+  window.location.href = 'admin-login.html';
+}
+
+// ── DATE ─────────────────────────────────────────────────────────
+document.getElementById('topbar-date').textContent =
+  new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+
+// ─────────────────────────────────────────────────────────────────
+// NETLIFY FORMS API — fetch real submissions
+// ─────────────────────────────────────────────────────────────────
+// Netlify Forms API endpoint:
+//   GET /.netlify/forms/<form-id>/submissions?access_token=<token>
+// Because access tokens are sensitive, we use a simpler approach:
+// Admin fetches via the Netlify Identity / Forms API using the
+// site's own fetch proxy. For a static-only site the easiest
+// approach is the Netlify Forms submissions endpoint.
+//
+// SETUP REQUIRED (one-time):
+//   1. Go to app.netlify.com → your site → Forms
+//   2. Copy your Form ID for "eduhk-survey-ses6026"
+//   3. Go to User settings → Applications → New access token
+//   4. Paste both values into the config below
+// ─────────────────────────────────────────────────────────────────
+
+var NETLIFY_FORM_NAME = 'eduhk-survey-ses6026';
+// Leave these empty — admin will be prompted to enter them
+var _siteId    = localStorage.getItem('netlify_site_id') || '';
+var _token     = localStorage.getItem('netlify_token')   || '';
+
+// ── FIELD MAPPING: Netlify field name → dashboard key ─────────────
+function normalizeNetlifySubmission(sub) {
+  var d = sub.data || sub;
+  function f(key) { return d[key] || '—'; }
+  var status = f('q6-status');
+  var degree = status === 'Current Student' ? f('q7-degree-type') : f('q8-degree-type');
+  var submittedAt = sub.created_at || sub.submittedAt || '';
+  var dateStr = submittedAt ? new Date(submittedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '—';
+  return {
+    id:                   sub.id || sub.number || '',
+    name:                 f('consent-name'),
+    date:                 dateStr,
+    university:           f('q5-university'),
+    degree:               degree,
+    subject:              f('q9-subject'),
+    tongue:               f('q1-mother-tongue'),
+    age:                  f('q2-age'),
+    gender:               f('q3-gender'),
+    origin:               f('q4-origin'),
+    status:               status,
+    studyMode:            f('q11-study-mode'),
+    fullPartTime:         f('q10-full-part-time'),
+    usage:                f('q13-usage-freq') !== '—' ? parseInt(f('q13-usage-freq'),10) : null,
+    understanding:        f('q17-understanding') !== '—' ? parseInt(f('q17-understanding'),10) : null,
+    toolUsed:             f('q15-tool-used'),
+    reasonsNotUsing:      f('q14-reasons-not-using'),
+    reasonsUsing:         f('q16-reasons-using'),
+    understandingFactors: f('q18-understanding-factors'),
+    hasProfTest:          f('q19-has-test'),
+    testTaken:            f('q20-test-taken'),
+    testResult:           f('q21-test-result'),
+    preference:           f('q22-preference'),
+    onlineBias:           f('q23-online-bias'),
+    consented:            true,
+    _raw:                 d
+  };
+}
+
+var allData = [];
+var filteredData = [];
+
+// ── FETCH FROM NETLIFY FORMS API ──────────────────────────────────
+function fetchNetlifySubmissions(siteId, token, callback) {
+  var url = 'https://api.netlify.com/api/v1/sites/' + siteId +
+            '/forms/' + NETLIFY_FORM_NAME + '/submissions?per_page=1000&access_token=' + token;
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' — check your Site ID and Access Token');
+      return r.json();
+    })
+    .then(function(submissions) {
+      callback(null, submissions);
+    })
+    .catch(function(err) {
+      callback(err, null);
+    });
+}
+
+function loadData() {
+  if (!_siteId || !_token) {
+    showConfigPrompt();
+    return;
+  }
+  showBanner('loading', 'Loading responses from Netlify Forms…');
+  fetchNetlifySubmissions(_siteId, _token, function(err, submissions) {
+    if (err) {
+      showBanner('error', '✗ Failed to load: ' + err.message + ' — Check your Site ID and Access Token in Data Management.');
+      allData = []; filteredData = [];
+      initCharts(); renderTable();
+      return;
+    }
+    allData = submissions.map(normalizeNetlifySubmission);
+    filteredData = allData.slice();
+    var n = allData.length;
+    showBanner('ok', '✓ Live Data — ' + n + ' real submission' + (n!==1?'s':'') + ' loaded from Netlify Forms. Last refreshed: ' + new Date().toLocaleTimeString());
+    initCharts();
+    renderTable();
+  });
+}
+
+function showBanner(type, msg) {
+  var banner = document.getElementById('data-source-banner');
+  if (!banner) return;
+  var styles = {
+    ok:      'background:#e8f5e9;border-bottom:1px solid #a5d6a7;color:#1b5e20;',
+    error:   'background:#fdecea;border-bottom:1px solid #f5c6cb;color:#c0392b;',
+    loading: 'background:#e3f2fd;border-bottom:1px solid #90caf9;color:#1565c0;',
+    warn:    'background:#fff8e1;border-bottom:1px solid #ffe082;color:#7c5a00;'
+  };
+  banner.style.cssText = (styles[type]||styles.warn) + 'padding:8px 36px;font-size:12px;display:flex;align-items:center;gap:8px;';
+  banner.innerHTML = msg;
+}
+
+function showConfigPrompt() {
+  showBanner('warn',
+    '⚠ <strong>Setup required</strong> — Enter your Netlify Site ID and Access Token in the ' +
+    '<a href="#" onclick="showSection('admin', document.getElementById('nav-admin'));return false;" style="color:inherit;font-weight:bold;">Data Management</a> tab to load real responses.');
+  allData = []; filteredData = [];
+  initCharts(); renderTable();
+}
+
+function refreshData() {
+  loadData();
+  showToast('Refreshing from Netlify Forms…');
+}
+
+window.addEventListener('focus', function() { loadData(); });
+
+// ── AGGREGATE HELPERS ─────────────────────────────────────────────
+function countBy(arr, key) {
+  var map = {};
+  arr.forEach(function(r) {
+    var v = (r[key]||'—').toString().trim();
+    if (!v || v==='—') v = 'Not specified';
+    map[v] = (map[v]||0)+1;
+  });
+  return map;
+}
+function avgField(arr, key) {
+  var vals = arr.map(function(r){return r[key];}).filter(function(v){return v!==null&&v!==undefined&&!isNaN(v);});
+  if (!vals.length) return 0;
+  return vals.reduce(function(s,v){return s+Number(v);},0)/vals.length;
+}
+function likertDist(arr, key) {
+  var dist=[0,0,0,0,0,0,0];
+  arr.forEach(function(r){var v=parseInt(r[key],10);if(v>=1&&v<=7)dist[v-1]++;});
+  return dist;
+}
+function countRankedField(arr, key) {
+  var map={};
+  arr.forEach(function(r){
+    var val=r[key]; if(!val||val==='—') return;
+    val.split(';').forEach(function(part){
+      var m=part.trim().match(/^\d+\.\s*(.+)$/);
+      if(m){var label=m[1].trim();map[label]=(map[label]||0)+1;}
+    });
+  });
+  return map;
+}
+function topN(map,n){return Object.entries(map).sort(function(a,b){return b[1]-a[1];}).slice(0,n);}
+
+var COLORS=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#e4dfd7','#2980b9','#27ae60'];
+
+function renderDonut(svgId,legId,counts,colors,total){
+  var svg=document.getElementById(svgId),legEl=document.getElementById(legId);
+  if(!svg) return;
+  var isSmall=svg.getAttribute('viewBox')==='0 0 110 110';
+  var cx=isSmall?55:60,cy=isSmall?55:60,r=isSmall?40:45,sw=isSmall?16:18;
+  var circ=2*Math.PI*r;
+  var entries=Object.entries(counts).sort(function(a,b){return b[1]-a[1];}).slice(0,6);
+  var sum=total||entries.reduce(function(s,e){return s+e[1];},0)||1;
+  var offset=circ*0.25;
+  var html='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="'+sw+'"/>';
+  var legHtml='';
+  entries.forEach(function(entry,i){
+    var col=colors[i%colors.length];
+    var arc=(entry[1]/sum)*circ;
+    html+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="'+sw+'" stroke-dasharray="'+arc.toFixed(2)+' '+circ.toFixed(2)+'" stroke-dashoffset="'+offset.toFixed(2)+'" transform="rotate(-90 '+cx+' '+cy+')"/>';
+    offset-=arc;
+    var pct=Math.round(entry[1]/sum*100);
+    legHtml+='<div class="legend-item"><div class="legend-dot" style="background:'+col+'"></div><div class="legend-label">'+entry[0]+'</div><div class="legend-pct">'+pct+'%</div></div>';
+  });
+  html+='<text x="'+cx+'" y="'+(cy-5)+'" text-anchor="middle" font-family="var(--font-display)" font-size="'+(isSmall?'15':'18')+'" font-weight="600" fill="#0d1b2a">'+total+'</text>';
+  html+='<text x="'+cx+'" y="'+(cy+9)+'" text-anchor="middle" font-family="var(--font-body)" font-size="9" fill="#6b6b6b">TOTAL</text>';
+  svg.innerHTML=html;
+  if(legEl) legEl.innerHTML=legHtml;
+}
+
+function drawBarChart(svgId,labels,values,color){
+  var svg=document.getElementById(svgId); if(!svg) return;
+  var W=(svg.parentElement?svg.parentElement.clientWidth:0)||600;
+  var H=parseInt(svg.getAttribute('height'))||140;
+  var padL=10,padR=10,padT=10,padB=36,n=labels.length;
+  if(!n){svg.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-family="var(--font-body)" font-size="13" fill="#ccc" font-style="italic">No data yet</text>';svg.setAttribute('width',W);return;}
+  var barW=Math.max(4,Math.floor((W-padL-padR)/n)-6),maxVal=Math.max.apply(null,values)||1,chartH=H-padT-padB,html='';
+  labels.forEach(function(label,i){
+    var x=padL+i*((W-padL-padR)/n)+3,bh=Math.max(2,Math.round((values[i]/maxVal)*chartH)),by=padT+chartH-bh;
+    var col=Array.isArray(color)?color[i%color.length]:(color||COLORS[0]);
+    html+='<g class="bar-group"><rect class="bar-rect" x="'+x+'" y="'+by+'" width="'+barW+'" height="'+bh+'" fill="'+col+'" rx="2"/>';
+    if(values[i]>0) html+='<text class="bar-value" x="'+(x+barW/2)+'" y="'+(by-5)+'" text-anchor="middle">'+values[i]+'</text>';
+    var w=label.split(' '),l1=w.slice(0,2).join(' '),l2=w.slice(2).join(' ');
+    html+='<text class="bar-label" x="'+(x+barW/2)+'" y="'+(H-padB+14)+'" text-anchor="middle">'+l1+'</text>';
+    if(l2) html+='<text class="bar-label" x="'+(x+barW/2)+'" y="'+(H-padB+25)+'" text-anchor="middle">'+l2+'</text>';
+    html+='</g>';
+  });
+  svg.setAttribute('width',W); svg.innerHTML=html;
+}
+
+function drawLikert(id,data,colors){
+  var el=document.getElementById(id); if(!el) return;
+  var total=data.reduce(function(a,b){return a+b;},0);
+  var labels=['Never (0%)','Rarely (<10%)','Sometimes (<30%)','Half (50%)','Often (>70%)','Mostly (>90%)','Always (100%)'];
+  el.innerHTML=data.map(function(v,i){
+    var pct=total?Math.round(v/total*100):0;
+    return '<div class="dist-row"><div class="dist-num">'+(i+1)+'</div><div class="dist-bar-wrap"><div class="dist-bar-fill" style="width:'+pct+'%;background:'+(colors[i]||COLORS[i])+'">'+(pct>10?'<span class="dist-bar-label">'+labels[i]+'</span>':'')+'</div></div><div class="dist-count">'+v+'<span style="color:#aaa;font-size:10px"> ('+pct+'%)</span></div></div>';
+  }).join('');
+}
+
+function emptyChart(id){var svg=document.getElementById(id);if(!svg)return;var W=(svg.parentElement?svg.parentElement.clientWidth:0)||400;svg.setAttribute('width',W);svg.innerHTML='<text x="'+(W/2)+'" y="60" text-anchor="middle" font-family="var(--font-body)" font-size="13" fill="#ccc" font-style="italic">No responses yet</text>';}
+function emptyLikert(id){var el=document.getElementById(id);if(!el)return;el.innerHTML=[1,2,3,4,5,6,7].map(function(i){return'<div class="dist-row"><div class="dist-num">'+i+'</div><div class="dist-bar-wrap"><div class="dist-bar-fill" style="width:0%;background:#e4dfd7"></div></div><div class="dist-count" style="color:#ccc">0</div></div>';}).join('');}
+function emptyDonut(svgId,legId){var svg=document.getElementById(svgId);if(svg){var s=svg.getAttribute('viewBox')==='0 0 110 110',cx=s?55:60,cy=s?55:60,r=s?40:45,sw=s?16:18;svg.innerHTML='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#f0ece4" stroke-width="'+sw+'"/><text x="'+cx+'" y="'+(cy+4)+'" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="#ccc" font-style="italic">No data yet</text>';}var leg=document.getElementById(legId);if(leg)leg.innerHTML='<div style="font-size:12px;color:#ccc;font-style:italic;padding:8px 0">Awaiting responses</div>';}
+function setText(id,val){var el=document.getElementById(id);if(el)el.textContent=val;}
+
+function initCharts(){
+  var n=allData.length;
+  setText('stat-total',n); setText('stat-consented',n);
+  setText('stat-total-sub',n>0?n+' participant'+(n!==1?'s':'')+' recorded':'No submissions yet');
+  setText('stat-consent-rate',n>0?'100% consent rate':'—');
+  var avgU=n?avgField(allData,'usage'):null,avgN=n?avgField(allData,'understanding'):null;
+  setText('stat-avg-usage',avgU&&avgU>0?avgU.toFixed(1):'—');
+  setText('stat-avg-understand',avgN&&avgN>0?avgN.toFixed(1):'—');
+  setText('resp-count',n); setText('demo-count',n); setText('trans-count',n); setText('admin-count',n);
+
+  if(n===0){
+    emptyDonut('tongue-donut-svg','tongue-donut-legend'); emptyDonut('age-donut-svg','age-donut-legend');
+    emptyDonut('gender-donut-svg','gender-donut-legend'); emptyDonut('origin-donut-svg','origin-donut-legend');
+    emptyDonut('status-donut-svg','status-donut-legend'); emptyDonut('mode-donut-svg','mode-donut-legend');
+    emptyLikert('likert-usage'); emptyLikert('likert-understand'); emptyLikert('likert-usage-2'); emptyLikert('likert-understand-2');
+    ['uni-chart','tool-chart','tool-chart-2','subject-chart','no-reason-chart','use-reason-chart','understand-chart','pref-chart'].forEach(emptyChart);
+    setText('stat-never','—'); setText('stat-never-pct','of respondents'); setText('stat-regular','—'); setText('stat-regular-pct','of respondents'); setText('stat-top-tool','—'); setText('stat-top-tool-pct','of tool users'); setText('stat-top-reason','—');
+    return;
+  }
+
+  renderDonut('tongue-donut-svg','tongue-donut-legend',countBy(allData,'tongue'),COLORS,n);
+  renderDonut('age-donut-svg','age-donut-legend',countBy(allData,'age'),COLORS,n);
+  renderDonut('gender-donut-svg','gender-donut-legend',countBy(allData,'gender'),COLORS,n);
+  renderDonut('origin-donut-svg','origin-donut-legend',countBy(allData,'origin'),COLORS,n);
+  renderDonut('status-donut-svg','status-donut-legend',countBy(allData,'status'),COLORS,n);
+  renderDonut('mode-donut-svg','mode-donut-legend',countBy(allData,'studyMode'),COLORS,n);
+
+  var lC1=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#b8963e','#0d1b2a'];
+  var lC2=['#e4dfd7','#d4b06a','#b8963e','#1e2f45','#162032','#0d1b2a','#0d1b2a'];
+  var uD=likertDist(allData,'usage'),nD=likertDist(allData,'understanding');
+  drawLikert('likert-usage',uD,lC1); drawLikert('likert-understand',nD,lC2);
+  drawLikert('likert-usage-2',uD,lC1); drawLikert('likert-understand-2',nD,lC2);
+
+  var uniTop=topN(countBy(allData,'university'),8);
+  drawBarChart('uni-chart',uniTop.map(function(e){return e[0];}),uniTop.map(function(e){return e[1];}),COLORS);
+  var subTop=topN(countBy(allData,'subject'),8);
+  drawBarChart('subject-chart',subTop.map(function(e){return e[0];}),subTop.map(function(e){return e[1];}),COLORS);
+  var prefTop=topN(countBy(allData,'preference'),5);
+  drawBarChart('pref-chart',prefTop.map(function(e){return e[0];}),prefTop.map(function(e){return e[1];}),COLORS);
+
+  var toolUsers=allData.filter(function(r){return r.usage!==null&&r.usage>1;});
+  var neverUsers=allData.filter(function(r){return r.usage===1;});
+  var regularUsers=allData.filter(function(r){return r.usage!==null&&r.usage>=4;});
+  setText('stat-never',neverUsers.length); setText('stat-never-pct',n?Math.round(neverUsers.length/n*100)+'% of respondents':'—');
+  setText('stat-regular',regularUsers.length); setText('stat-regular-pct',n?Math.round(regularUsers.length/n*100)+'% of respondents':'—');
+
+  var toolMap=countBy(toolUsers,'toolUsed'),toolTop=topN(toolMap,8);
+  if(toolTop.length){drawBarChart('tool-chart',toolTop.map(function(e){return e[0];}),toolTop.map(function(e){return e[1];}),COLORS);drawBarChart('tool-chart-2',toolTop.map(function(e){return e[0];}),toolTop.map(function(e){return e[1];}),COLORS);setText('stat-top-tool',toolTop[0][0]);setText('stat-top-tool-pct',toolUsers.length?Math.round(toolTop[0][1]/toolUsers.length*100)+'% of tool users':'—');}
+  else{emptyChart('tool-chart');emptyChart('tool-chart-2');setText('stat-top-tool','—');setText('stat-top-tool-pct','—');}
+
+  var noTop=topN(countRankedField(neverUsers,'reasonsNotUsing'),6);
+  if(noTop.length)drawBarChart('no-reason-chart',noTop.map(function(e){return e[0];}),noTop.map(function(e){return e[1];}),COLORS);else emptyChart('no-reason-chart');
+  var useTop=topN(countRankedField(toolUsers,'reasonsUsing'),6);
+  if(useTop.length){drawBarChart('use-reason-chart',useTop.map(function(e){return e[0];}),useTop.map(function(e){return e[1];}),COLORS);setText('stat-top-reason',useTop[0][0]);}else{emptyChart('use-reason-chart');setText('stat-top-reason','—');}
+  var uFTop=topN(countRankedField(allData,'understandingFactors'),7);
+  if(uFTop.length)drawBarChart('understand-chart',uFTop.map(function(e){return e[0];}),uFTop.map(function(e){return e[1];}),COLORS);else emptyChart('understand-chart');
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+var SECTION_TITLES={overview:'Overview',responses:'All Responses',demographics:'Demographics',translation:'Translation Tools',admin:'Data Management'};
+function showSection(id,navEl){
+  document.querySelectorAll('.page-section').forEach(function(s){
+    s.classList.remove('active');
+    s.style.display='none';
+  });
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var sec=document.getElementById('sec-'+id);
+  if(sec){ sec.classList.add('active'); sec.style.display='block'; }
+  if(navEl)navEl.classList.add('active');
+  setText('topbar-title',SECTION_TITLES[id]||id);
+  setTimeout(initCharts,50);
+}
+
+// ── RESPONSE TABLE ────────────────────────────────────────────────
+var currentPage=1,rowsPerPage=10,sortCol=-1,sortDir=1;
+
+function showDetail(absIdx){
+  var r=filteredData[absIdx]; if(!r) return;
+  var body=document.getElementById('detail-body'),modal=document.getElementById('detail-modal');
+  var fields=[
+    ['Participant Name',r.name],['Submitted',r.date],['Consent','✓ Consented'],
+    ['— Section 1 —',''],['Mother Tongue (Q1)',r.tongue],['Age (Q2)',r.age],['Gender (Q3)',r.gender],
+    ['Origin (Q4)',r.origin],['University (Q5)',r.university],['Student Status (Q6)',r.status],
+    ['Degree (Q7/Q8)',r.degree],['Subject (Q9)',r.subject],['Full/Part-time (Q10)',r.fullPartTime],
+    ['— Section 2 —',''],['Study Mode (Q11)',r.studyMode],
+    ['— Section 3 —',''],['Usage Freq Q13 (1–7)',r.usage!==null?r.usage+' / 7':'—'],
+    ['Reasons NOT Using (Q14)',r.reasonsNotUsing],['Tool Used (Q15)',r.toolUsed],['Reasons Using (Q16)',r.reasonsUsing],
+    ['— Section 4 —',''],['Understanding Q17 (1–7)',r.understanding!==null?r.understanding+' / 7':'—'],
+    ['Understanding Factors (Q18)',r.understandingFactors],
+    ['— Section 5 —',''],['Has Prof Test (Q19)',r.hasProfTest],['Test Taken (Q20)',r.testTaken],['Result (Q21)',r.testResult],
+    ['— Section 6 —',''],['Mode Preference (Q22)',r.preference],['Online Bias (Q23)',r.onlineBias],
+  ];
+  body.innerHTML=fields.map(function(f){
+    if(f[1]==='') return'<div style="font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:14px 0 6px;border-top:1px solid var(--rule);margin-top:6px">'+f[0]+'</div>';
+    return'<div style="display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid #f5f2ee;gap:16px"><span style="font-size:12px;color:var(--ink-soft);flex-shrink:0">'+f[0]+'</span><span style="font-size:12.5px;color:var(--navy);font-weight:500;text-align:right">'+(f[1]||'—')+'</span></div>';
+  }).join('');
+  modal.style.display='flex';
+}
+function closeDetail(){document.getElementById('detail-modal').style.display='none';}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeDetail();});
+
+function renderTable(){
+  var body=document.getElementById('table-body');
+  var start=(currentPage-1)*rowsPerPage,slice=filteredData.slice(start,start+rowsPerPage);
+  if(!slice.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--ink-soft);font-style:italic">'+(allData.length?'No matching responses.':'No responses yet — configure your Netlify credentials in Data Management.')+'</td></tr>';}
+  else{body.innerHTML=slice.map(function(r,i){var ai=start+i;var u=r.usage!==null?'<strong style="color:var(--navy)">'+r.usage+'</strong><span style="color:#aaa"> /7</span>':'<span style="color:#ccc">—</span>';var nd=r.understanding!==null?'<strong style="color:var(--navy)">'+r.understanding+'</strong><span style="color:#aaa"> /7</span>':'<span style="color:#ccc">—</span>';return'<tr onclick="showDetail('+ai+')" style="cursor:pointer"><td>'+r.name+'</td><td>'+r.date+'</td><td><span class="badge badge-navy">'+(r.university||'—')+'</span></td><td>'+(r.degree||'—')+'</td><td>'+(r.tongue||'—')+'</td><td>'+u+'</td><td>'+nd+'</td><td>'+(r.studyMode||'—')+'</td><td><span class="badge badge-green">✓ Consented</span></td></tr>';}).join('');}
+  var total=filteredData.length,pages=Math.ceil(total/rowsPerPage)||1;
+  setText('pg-info',total?'Showing '+(start+1)+'–'+Math.min(start+rowsPerPage,total)+' of '+total:'No results');
+  var btns='';for(var p=1;p<=pages;p++)btns+='<button class="pg-btn'+(p===currentPage?' active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
+  document.getElementById('pg-btns').innerHTML=btns;
+}
+function goPage(p){currentPage=p;renderTable();}
+function filterTable(){
+  var s=(document.getElementById('search-box').value||'').toLowerCase();
+  var u=(document.getElementById('filter-uni').value||'');
+  filteredData=allData.filter(function(r){return(!s||(r.name||'').toLowerCase().includes(s)||(r.university||'').toLowerCase().includes(s))&&(!u||r.university===u);});
+  currentPage=1;renderTable();
+}
+function sortTable(col){
+  if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}
+  var keys=['name','date','university','degree','tongue','usage','understanding','studyMode'];
+  filteredData.sort(function(a,b){var av=a[keys[col]]??'',bv=b[keys[col]]??'';return(av<bv?-1:av>bv?1:0)*sortDir;});
+  document.querySelectorAll('thead th').forEach(function(th,i){th.classList.toggle('sorted',i===col);});
+  renderTable();
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────
+function toggleDrop(){var d=document.getElementById('exp-dropdown'),c=document.getElementById('exp-caret');d.classList.toggle('open');c.textContent=d.classList.contains('open')?'▴':'▾';}
+function closeDrop(){var d=document.getElementById('exp-dropdown');if(d)d.classList.remove('open');var c=document.getElementById('exp-caret');if(c)c.textContent='▾';}
+document.addEventListener('click',function(e){if(!e.target.closest('.exp-wrap'))closeDrop();});
+
+function buildRawSheet(data){
+  var hdr=['#','Name','Date','University','Degree','Subject','Mother Tongue','Age','Gender','Origin','Status','Study Mode','Full/Part-time','Tool Usage Q13','Tool Used Q15','Reasons Not Using Q14','Reasons Using Q16','Understanding Q17','Understanding Factors Q18','Has Test Q19','Test Q20','Result Q21','Preference Q22','Online Bias Q23','Consented'];
+  var rows=[hdr];
+  data.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.subject,r.tongue,r.age,r.gender,r.origin,r.status,r.studyMode,r.fullPartTime,r.usage,r.toolUsed,r.reasonsNotUsing,r.reasonsUsing,r.understanding,r.understandingFactors,r.hasProfTest,r.testTaken,r.testResult,r.preference,r.onlineBias,'Yes']);});
+  var ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[4,24,14,10,14,14,14,10,8,14,16,16,12,14,18,28,28,16,28,10,12,12,18,12,10].map(function(w){return{wch:w};});
+  return ws;
+}
+function buildStatsBlock(label,map,total){var rows=[['— '+label+' —','Count','%']];Object.entries(map).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){rows.push([e[0],e[1],Math.round(e[1]/(total||1)*100)+'%']);});rows.push(['','','']);return rows;}
+function buildStatsSheet(){
+  var n=allData.length||1;
+  var rows=[['EdUHK SES6026 — Survey Summary Statistics','',''],['Generated on',new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}),''],['Data Source','Netlify Forms (real submissions)',''],['Total Responses',allData.length,''],['Consent Rate','100%',''],['Avg Tool Usage Q13',avgField(allData,'usage').toFixed(2),'/ 7'],['Avg Understanding Q17',avgField(allData,'understanding').toFixed(2),'/ 7'],['','','']];
+  rows=rows.concat(buildStatsBlock('MOTHER TONGUE Q1',countBy(allData,'tongue'),n));
+  rows=rows.concat(buildStatsBlock('AGE Q2',countBy(allData,'age'),n));
+  rows=rows.concat(buildStatsBlock('GENDER Q3',countBy(allData,'gender'),n));
+  rows=rows.concat(buildStatsBlock('ORIGIN Q4',countBy(allData,'origin'),n));
+  rows=rows.concat(buildStatsBlock('UNIVERSITY Q5',countBy(allData,'university'),n));
+  rows=rows.concat(buildStatsBlock('STUDENT STATUS Q6',countBy(allData,'status'),n));
+  rows=rows.concat(buildStatsBlock('SUBJECT Q9',countBy(allData,'subject'),n));
+  rows=rows.concat(buildStatsBlock('STUDY MODE Q11',countBy(allData,'studyMode'),n));
+  rows=rows.concat(buildStatsBlock('FULL/PART-TIME Q10',countBy(allData,'fullPartTime'),n));
+  var uD=likertDist(allData,'usage'),nD=likertDist(allData,'understanding');
+  var lbl=['1-Never','2-Rarely','3-Sometimes','4-Half','5-Often','6-Mostly','7-Always'];
+  rows.push(['— TOOL USAGE Q13 —','Count','%']);uD.forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
+  rows.push(['— UNDERSTANDING Q17 —','Count','%']);nD.forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
+  var tU=allData.filter(function(r){return r.usage>1;}),nU=allData.filter(function(r){return r.usage===1;});
+  rows=rows.concat(buildStatsBlock('TOOL USED Q15',countBy(tU,'toolUsed'),tU.length||1));
+  rows=rows.concat(buildStatsBlock('REASONS NOT USING Q14',countRankedField(nU,'reasonsNotUsing'),nU.length||1));
+  rows=rows.concat(buildStatsBlock('REASONS FOR USING Q16',countRankedField(tU,'reasonsUsing'),tU.length||1));
+  rows=rows.concat(buildStatsBlock('UNDERSTANDING FACTORS Q18',countRankedField(allData,'understandingFactors'),n));
+  rows=rows.concat(buildStatsBlock('MODE PREFERENCE Q22',countBy(allData,'preference'),n));
+  rows=rows.concat(buildStatsBlock('ONLINE BIAS Q23',countBy(allData,'onlineBias'),n));
+  var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:46},{wch:12},{wch:8}];return ws;
+}
+function buildConsentSheet(){var hdr=['#','Name','Date','University','Degree','Status','Consented','Study Reference'];var rows=[hdr];allData.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.status,'Yes','SES6026 MA Thesis — EdUHK']);});var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:4},{wch:24},{wch:16},{wch:10},{wch:16},{wch:16},{wch:10},{wch:28}];return ws;}
+
+function expAll(){var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRawSheet(allData),'Raw Responses');XLSX.utils.book_append_sheet(wb,buildStatsSheet(),'Summary Statistics');XLSX.utils.book_append_sheet(wb,buildConsentSheet(),'Consent Log');XLSX.writeFile(wb,'EdUHK_SES6026_Full_Report.xlsx');showToast('✓ Full Excel report downloaded');}
+function expStats(){var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildStatsSheet(),'Summary Statistics');XLSX.writeFile(wb,'EdUHK_SES6026_Statistics.xlsx');showToast('✓ Summary statistics downloaded');}
+function expFiltered(){var data=filteredData.length?filteredData:allData;var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRawSheet(data),'Filtered Responses');XLSX.writeFile(wb,'EdUHK_SES6026_Filtered.xlsx');showToast('✓ Filtered data exported ('+data.length+' rows)');}
+function expCSV(){var hdr=['#','Name','Date','University','Degree','Subject','Tongue','Age','Gender','Origin','Status','Mode','Tool Usage','Tool Used','Understanding','Preference','Consented'];var rows=[hdr.join(',')];allData.forEach(function(r,i){var e=function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"';};rows.push([i+1,e(r.name),e(r.date),e(r.university),e(r.degree),e(r.subject),e(r.tongue),e(r.age),e(r.gender),e(r.origin),e(r.status),e(r.studyMode),r.usage||'',e(r.toolUsed),r.understanding||'',e(r.preference),'Yes'].join(','));});var blob=new Blob(['﻿'+rows.join('
+')],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='EdUHK_SES6026_Raw.csv';a.click();URL.revokeObjectURL(url);showToast('✓ CSV downloaded');}
+function exportAllXLSX(){expAll();}function exportTableXLSX(){expFiltered();}
+
+// ── DATA MANAGEMENT ───────────────────────────────────────────────
+function saveCredentials(){
+  var sid=document.getElementById('input-site-id').value.trim();
+  var tok=document.getElementById('input-token').value.trim();
+  if(!sid||!tok){showToast('Please enter both Site ID and Access Token');return;}
+  localStorage.setItem('netlify_site_id',sid);
+  localStorage.setItem('netlify_token',tok);
+  _siteId=sid; _token=tok;
+  showToast('✓ Credentials saved — loading data…');
+  loadData();
+}
+function clearCredentials(){
+  localStorage.removeItem('netlify_site_id');
+  localStorage.removeItem('netlify_token');
+  _siteId=''; _token='';
+  document.getElementById('input-site-id').value='';
+  document.getElementById('input-token').value='';
+  showToast('Credentials cleared');
+  showConfigPrompt();
+}
+
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3500);}
+function signOut(){localStorage.removeItem('admin_auth');window.location.href='admin-login.html';}
+
+// ── BOOT ─────────────────────────────────────────────────────────
+// Pre-fill credential inputs if saved
+window.addEventListener('DOMContentLoaded', function() {
+  var sid = document.getElementById('input-site-id');
+  var tok = document.getElementById('input-token');
+  var cst = document.getElementById('creds-status');
+  if (sid && _siteId) sid.value = _siteId;
+  if (tok && _token)  tok.value = _token;
+  if (cst) cst.textContent = (_siteId && _token) ? 'Yes ✓' : 'Not configured';
+});
+loadData();
+window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(initCharts,200);});
+</script>
+</body>
+</html>
