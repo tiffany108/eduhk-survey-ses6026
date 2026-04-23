@@ -358,12 +358,61 @@ function loadData() {
 
 function normalizeRow(row) {
   if (!row) return null;
-  function f(k) { return (row[k]||'').toString().trim()||'—'; }
-  var status = f('q6-status');
-  var degree = status==='Current Student' ? f('q7-degree-type') : f('q8-degree-type');
+  // Support both field-key format ('consent-name') and header format ('Consent Name')
+  function f(k, alt) {
+    var v = (row[k] || row[alt] || '').toString().trim();
+    return v || '—';
+  }
+  var status = f('q6-status', 'Q6 Status');
+  var degree = status === 'Current Student'
+    ? f('q7-degree-type', 'Q7 Degree Type')
+    : f('q8-degree-type', 'Q8 Degree Type');
+
+  // Date: try field key first, then header name, then Submission ID (fallback)
   var dateStr = '—';
-  try { var dt=row['submitted-at']||row['Submitted At']||''; if(dt) dateStr=new Date(dt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); } catch(e) {}
-  return { name:f('consent-name'), date:dateStr, university:f('q5-university'), degree:degree, subject:f('q9-subject'), tongue:f('q1-mother-tongue'), age:f('q2-age'), gender:f('q3-gender'), origin:f('q4-origin'), status:status, fullPartTime:f('q10-full-part-time'), studyMode:f('q11-study-mode'), ftfPct:f('q12-ftf-pct'), onlinePct:f('q12-online-pct'), usage:row['q13-usage-freq']?parseInt(row['q13-usage-freq'])||null:null, reasonsNot:f('q14-reasons-not-using'), toolUsed:f('q15-tool-used'), reasonsFor:f('q16-reasons-using'), understanding:row['q17-understanding']?parseInt(row['q17-understanding'])||null:null, underFactors:f('q18-understanding-factors'), hasTest:f('q19-has-test'), testTaken:f('q20-test-taken'), testResult:f('q21-test-result'), preference:f('q22-preference'), onlineBias:f('q23-online-bias'), biasReasons:f('q24-bias-reasons'), acceptReasons:f('q25-accept-reasons') };
+  try {
+    var dt = row['submitted-at'] || row['Submitted At'] || '';
+    // Avoid using the Submission ID (starts with 'resp_') as a date
+    if (dt && !dt.toString().startsWith('resp_')) {
+      dateStr = new Date(dt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+    }
+  } catch(e) {}
+
+  // Name: try field key, then header, avoid timestamp-like values
+  var name = (row['consent-name'] || row['Consent Name'] || '').toString().trim();
+  if (!name || name.startsWith('resp_') || name.match(/^\d{4}-\d{2}-\d{2}/)) name = '—';
+
+  return {
+    name:         name,
+    date:         dateStr,
+    university:   f('q5-university',  'Q5 University'),
+    degree:       degree,
+    subject:      f('q9-subject',     'Q9 Subject'),
+    tongue:       f('q1-mother-tongue','Q1 Mother Tongue'),
+    age:          f('q2-age',          'Q2 Age'),
+    gender:       f('q3-gender',       'Q3 Gender'),
+    origin:       f('q4-origin',       'Q4 Origin'),
+    status:       status,
+    fullPartTime: f('q10-full-part-time','Q10 Full/Part-time'),
+    studyMode:    f('q11-study-mode',  'Q11 Study Mode'),
+    ftfPct:       f('q12-ftf-pct',     'Q12 FTF %'),
+    onlinePct:    f('q12-online-pct',  'Q12 Online %'),
+    usage:        row['q13-usage-freq'] || row['Q13 Tool Usage']
+                  ? parseInt(row['q13-usage-freq'] || row['Q13 Tool Usage']) || null : null,
+    reasonsNot:   f('q14-reasons-not-using','Q14 Reasons Not Using'),
+    toolUsed:     f('q15-tool-used',   'Q15 Tool Used'),
+    reasonsFor:   f('q16-reasons-using','Q16 Reasons Using'),
+    understanding:row['q17-understanding'] || row['Q17 Understanding']
+                  ? parseInt(row['q17-understanding'] || row['Q17 Understanding']) || null : null,
+    underFactors: f('q18-understanding-factors','Q18 Understand Factors'),
+    hasTest:      f('q19-has-test',    'Q19 Has Test'),
+    testTaken:    f('q20-test-taken',  'Q20 Test Taken'),
+    testResult:   f('q21-test-result', 'Q21 Test Result'),
+    preference:   f('q22-preference',  'Q22 Preference'),
+    onlineBias:   f('q23-online-bias', 'Q23 Online Bias'),
+    biasReasons:  f('q24-bias-reasons','Q24 Bias Reasons'),
+    acceptReasons:f('q25-accept-reasons','Q25 Accept Reasons'),
+  };
 }
 
 function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}

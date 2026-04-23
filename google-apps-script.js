@@ -22,7 +22,7 @@
 var SHEET_NAME = 'Responses';
 
 var FIELDS = [
-  'submitted-at', 'consent-name', 'consent-date',
+  'id', 'submitted-at', 'consent-name', 'consent-date',
   'q1-mother-tongue', 'q2-age', 'q3-gender', 'q4-origin',
   'q5-university', 'q6-status', 'q7-degree-type', 'q7-year',
   'q8-grad-year', 'q9-subject', 'q10-full-part-time',
