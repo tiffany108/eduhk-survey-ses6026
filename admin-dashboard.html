@@ -305,17 +305,13 @@ tbody td:first-child{color:var(--navy);font-weight:600;font-family:var(--fd);fon
 var SCRIPT_URL = localStorage.getItem('gsheet_script_url') || '';
 var COLORS = ['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#e4dfd7','#2980b9','#27ae60'];
 var allData = [], filteredData = [], curPage = 1, rowsPerPage = 10, sortCol = -1, sortDir = 1;
-
 var TAB_TITLES = {overview:'Overview',responses:'All Responses',demographics:'Demographics',translation:'Translation Tools',settings:'Data Management'};
 
 function switchTab(id, el) {
-  document.querySelectorAll('.section').forEach(function(s) {
-    s.style.display = 'none';
-    s.classList.remove('active');
-  });
+  document.querySelectorAll('.section').forEach(function(s) { s.style.display='none'; s.classList.remove('active'); });
   document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
   var t = document.getElementById('tab-' + id);
-  if (t) { t.style.display = 'block'; t.classList.add('active'); }
+  if (t) { t.style.display='block'; t.classList.add('active'); }
   if (el) el.classList.add('active');
   var title = document.getElementById('topbar-title');
   if (title) title.textContent = TAB_TITLES[id] || id;
@@ -329,103 +325,71 @@ function checkAuth() {
 }
 
 function setBanner(type, msg) {
-  var b = document.getElementById('banner');
-  if (!b) return;
+  var b = document.getElementById('banner'); if (!b) return;
   var s = {ok:'background:#e8f5e9;border-bottom:1px solid #a5d6a7;color:#1b5e20',error:'background:#fdecea;border-bottom:1px solid #f5c6cb;color:#c0392b',info:'background:#e3f2fd;border-bottom:1px solid #90caf9;color:#1565c0',warn:'background:#fff8e1;border-bottom:1px solid #ffe082;color:#5d4e00'};
   b.setAttribute('style',(s[type]||s.warn)+';padding:8px 28px;font-size:12px;display:flex;align-items:center;gap:8px;');
   b.innerHTML = msg;
 }
 
 function loadData() {
-  if (!SCRIPT_URL) { setBanner('warn','⚠ <strong>Setup required</strong> — Go to <strong>⚙ Data Management</strong> and enter your Google Apps Script URL.'); allData=[]; filteredData=[]; drawCharts(); renderTable(); return; }
-  setBanner('info','⏳ Loading responses from Google Sheets…');
+  if (!SCRIPT_URL) { setBanner('warn','&#9888; <strong>Setup required</strong> &mdash; Go to <strong>&#9881; Data Management</strong> and enter your Google Apps Script URL.'); allData=[]; filteredData=[]; drawCharts(); renderTable(); return; }
+  setBanner('info','&#8987; Loading responses from Google Sheets&hellip;');
   fetch(SCRIPT_URL + '?action=getAll&t=' + Date.now())
     .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(rows) {
-      if (!Array.isArray(rows)) throw new Error('Invalid response — check Apps Script is deployed correctly');
+      if (!Array.isArray(rows)) throw new Error('Invalid response from script');
       allData = rows.map(normalizeRow).filter(Boolean);
       filteredData = allData.slice();
       var n = allData.length;
-      setBanner('ok','✓ <strong>Live Data</strong> — <strong>'+n+'</strong> submission'+(n!==1?'s':'')+' loaded. Refreshed: '+new Date().toLocaleTimeString());
+      setBanner('ok','&#10003; <strong>Live Data</strong> &mdash; <strong>'+n+'</strong> submission'+(n!==1?'s':'')+' loaded. Refreshed: '+new Date().toLocaleTimeString());
       setText('cfg-count', n);
       drawCharts(); renderTable();
-      toast('✓ '+n+' response'+(n!==1?'s':'')+' loaded');
+      toast('Loaded ' + n + ' response' + (n!==1?'s':''));
     })
     .catch(function(err) {
       console.error('loadData:', err);
-      setBanner('error','✗ Failed: <strong>'+err.message+'</strong> — Check Script URL in ⚙ Data Management.');
+      setBanner('error','&#10007; Failed: <strong>'+err.message+'</strong> &mdash; Check Script URL in Data Management.');
       allData=[]; filteredData=[]; drawCharts(); renderTable();
     });
 }
 
 function normalizeRow(row) {
   if (!row) return null;
-  // Support both field-key format ('consent-name') and header format ('Consent Name')
-  function f(k, alt) {
-    var v = (row[k] || row[alt] || '').toString().trim();
-    return v || '—';
-  }
-  var status = f('q6-status', 'Q6 Status');
-  var degree = status === 'Current Student'
-    ? f('q7-degree-type', 'Q7 Degree Type')
-    : f('q8-degree-type', 'Q8 Degree Type');
-
-  // Date: try field key first, then header name, then Submission ID (fallback)
-  var dateStr = '—';
-  try {
-    var dt = row['submitted-at'] || row['Submitted At'] || '';
-    // Avoid using the Submission ID (starts with 'resp_') as a date
-    if (dt && !dt.toString().startsWith('resp_')) {
-      dateStr = new Date(dt).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
-    }
-  } catch(e) {}
-
-  // Name: try field key, then header, avoid timestamp-like values
-  var name = (row['consent-name'] || row['Consent Name'] || '').toString().trim();
-  if (!name || name.startsWith('resp_') || name.match(/^\d{4}-\d{2}-\d{2}/)) name = '—';
-
+  function f(k, alt) { return (row[k]||row[alt]||'').toString().trim()||'&mdash;'; }
+  var status = f('q6-status','Q6 Status');
+  var degree = status==='Current Student' ? f('q7-degree-type','Q7 Degree Type') : f('q8-degree-type','Q8 Degree Type (Alumni)');
+  var dateStr = '&mdash;';
+  try { var dt=row['submitted-at']||row['Submitted At']||''; if(dt&&!dt.toString().startsWith('resp_')) dateStr=new Date(dt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); } catch(e){}
+  var name = (row['consent-name']||row['Consent Name']||'').toString().trim();
+  if (!name || name.startsWith('resp_')) name = '&mdash;';
   return {
-    name:           name,
-    date:           dateStr,
-    tongue:         f('q1-mother-tongue',         'Q1 Mother Tongue'),
-    age:            f('q2-age',                   'Q2 Age'),
-    gender:         f('q3-gender',                'Q3 Gender'),
-    origin:         f('q4-origin',                'Q4 Origin'),
-    university:     f('q5-university',            'Q5 University'),
-    status:         status,
-    q7DegreeType:   f('q7-degree-type',           'Q7 Degree Type'),
-    q7Year:         f('q7-year',                  'Q7 Year of Study'),
-    q8DegreeType:   f('q8-degree-type',           'Q8 Degree Type (Alumni)'),
-    q8DegreeOther:  f('q8-degree-type-other',     'Q8 Degree Other (Alumni)'),
-    q8GradYear:     f('q8-grad-year',             'Q8 Graduation Year'),
-    subject:        f('q9-subject',               'Q9 Subject'),
-    fullPartTime:   f('q10-full-part-time',        'Q10 Full/Part-time'),
-    studyMode:      f('q11-study-mode',            'Q11 Study Mode'),
-    ftfPct:         f('q12-ftf-pct',              'Q12 Face-to-face %'),
-    onlinePct:      f('q12-online-pct',            'Q12 Online %'),
-    usage:          parseInt(row['q13-usage-freq'] || row['Q13 Tool Usage Freq (1-7)']) || null,
-    reasonsNot:     f('q14-reasons-not-using',    'Q14 Reasons NOT Using'),
-    toolUsed:       f('q15-tool-used',            'Q15 Tool Used'),
-    reasonsFor:     f('q16-reasons-using',        'Q16 Reasons FOR Using'),
-    understanding:  parseInt(row['q17-understanding'] || row['Q17 Understanding (1-7)']) || null,
-    underFactors:   f('q18-understanding-factors', 'Q18 Understanding Factors'),
-    hasTest:        f('q19-has-test',             'Q19 Has English Test'),
-    testTaken:      f('q20-test-taken',           'Q20 Test Taken'),
-    testResult:     f('q21-test-result',          'Q21 Test Result'),
-    preference:     f('q22-preference',           'Q22 Mode Preference'),
-    onlineBias:     f('q23-online-bias',          'Q23 Online Bias'),
-    biasReasons:    f('q24-bias-reasons',         'Q24 Bias Reasons'),
-    acceptReasons:  f('q25-accept-reasons',       'Q25 Accept Reasons'),
-    degree:         degree,
-    rowId:          row['id'] || row['Submission ID'] || '',
+    name:name, date:dateStr, rowId:row['id']||row['Submission ID']||'',
+    university:f('q5-university','Q5 University'), degree:degree, subject:f('q9-subject','Q9 Subject'),
+    tongue:f('q1-mother-tongue','Q1 Mother Tongue'), age:f('q2-age','Q2 Age'), gender:f('q3-gender','Q3 Gender'),
+    origin:f('q4-origin','Q4 Origin'), status:status, fullPartTime:f('q10-full-part-time','Q10 Full/Part-time'),
+    studyMode:f('q11-study-mode','Q11 Study Mode'),
+    ftfPct:f('q12-ftf-pct','Q12 Face-to-face %'), onlinePct:f('q12-online-pct','Q12 Online %'),
+    usage:parseInt(row['q13-usage-freq']||row['Q13 Tool Usage Freq (1-7)'])||null,
+    reasonsNot:f('q14-reasons-not-using','Q14 Reasons NOT Using'),
+    toolUsed:f('q15-tool-used','Q15 Tool Used'),
+    reasonsFor:f('q16-reasons-using','Q16 Reasons FOR Using'),
+    understanding:parseInt(row['q17-understanding']||row['Q17 Understanding (1-7)'])||null,
+    underFactors:f('q18-understanding-factors','Q18 Understanding Factors'),
+    hasTest:f('q19-has-test','Q19 Has English Test'), testTaken:f('q20-test-taken','Q20 Test Taken'),
+    testResult:f('q21-test-result','Q21 Test Result'), preference:f('q22-preference','Q22 Mode Preference'),
+    onlineBias:f('q23-online-bias','Q23 Online Bias'), biasReasons:f('q24-bias-reasons','Q24 Bias Reasons'),
+    acceptReasons:f('q25-accept-reasons','Q25 Accept Reasons'),
+    q7DegreeType:f('q7-degree-type','Q7 Degree Type'), q7Year:f('q7-year','Q7 Year of Study'),
+    q8DegreeType:f('q8-degree-type','Q8 Degree Type (Alumni)'), q8DegreeOther:f('q8-degree-type-other','Q8 Degree Other (Alumni)'),
+    q8GradYear:f('q8-grad-year','Q8 Graduation Year'), consentDate:f('consent-date','Consent Date')
   };
 }
 
 function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
-function countBy(arr,key){var m={};arr.forEach(function(r){var v=(r[key]||'Unknown').toString().trim();if(v==='—')v='Not specified';m[v]=(m[v]||0)+1;});return m;}
+function countBy(arr,key){var m={};arr.forEach(function(r){var v=(r[key]||'Unknown').toString().trim();if(v==='&mdash;')v='Not specified';m[v]=(m[v]||0)+1;});return m;}
 function avgF(arr,key){var v=arr.map(function(r){return r[key];}).filter(function(x){return x!==null&&!isNaN(x);});return v.length?v.reduce(function(s,x){return s+x;},0)/v.length:0;}
 function lkDist(arr,key){var d=[0,0,0,0,0,0,0];arr.forEach(function(r){var v=parseInt(r[key]);if(v>=1&&v<=7)d[v-1]++;});return d;}
-function countRanked(arr,key){var m={};arr.forEach(function(r){var val=r[key];if(!val||val==='—')return;val.split(';').forEach(function(p){var x=p.trim().match(/^\d+\.\s*(.+)$/);if(x){var l=x[1].trim();m[l]=(m[l]||0)+1;}});});return m;}
+function countRanked(arr,key){var m={};arr.forEach(function(r){var val=r[key];if(!val||val==='&mdash;')return;val.split(';').forEach(function(p){var x=p.trim().match(/^\d+\.\s*(.+)$/);if(x){var l=x[1].trim();m[l]=(m[l]||0)+1;}});});return m;}
 function topN(m,n){return Object.entries(m).sort(function(a,b){return b[1]-a[1];}).slice(0,n);}
 
 function drawDonut(sid,lid,counts,total){
@@ -460,16 +424,17 @@ function emptyLk(id){var el=document.getElementById(id);if(!el)return;el.innerHT
 
 function drawCharts(){
   var n=allData.length,lC1=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#b8963e','#0d1b2a'],lC2=['#e4dfd7','#d4b06a','#b8963e','#1e2f45','#162032','#0d1b2a','#0d1b2a'];
-  setText('st-total',n||'—');setText('st-sub',n?n+' participant'+(n!==1?'s':''):'No submissions yet');setText('st-consent',n||'—');
+  setText('st-total',n||'&mdash;');setText('st-sub',n?n+' participant'+(n!==1?'s':''):'No submissions yet');setText('st-consent',n||'&mdash;');
   var avgU=n?avgF(allData,'usage'):0,avgN=n?avgF(allData,'understanding'):0;
-  setText('st-usage',n&&avgU?avgU.toFixed(1):'—');setText('st-under',n&&avgN?avgN.toFixed(1):'—');
-  setText('resp-cnt',n||'—');setText('demo-cnt',n||'—');setText('trans-cnt',n||'—');setText('cfg-count',n);
+  setText('st-usage',n&&avgU?avgU.toFixed(1):'&mdash;');setText('st-under',n&&avgN?avgN.toFixed(1):'&mdash;');
+  setText('resp-cnt',n||'&mdash;');setText('demo-cnt',n||'&mdash;');setText('trans-cnt',n||'&mdash;');setText('cfg-count',n);
+  var lC1=['#0d1b2a','#162032','#1e2f45','#b8963e','#d4b06a','#b8963e','#0d1b2a'],lC2=['#e4dfd7','#d4b06a','#b8963e','#1e2f45','#162032','#0d1b2a','#0d1b2a'];
   if(!n){
     ['c-tongue','c-age','c-gender','c-origin','c-status','c-mode'].forEach(function(id){var svg=document.getElementById(id);if(svg)svg.innerHTML='<circle cx="55" cy="55" r="40" fill="none" stroke="#f0ece4" stroke-width="16"/><text x="55" y="59" text-anchor="middle" font-size="10" fill="#ccc" font-style="italic">No data</text>';});
     ['l-tongue','l-age','l-gender','l-origin','l-status','l-mode'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML='<div style="color:#ccc;font-size:12px;font-style:italic">Awaiting responses</div>';});
     ['lk-usage','lk-under','lk-usage2','lk-under2'].forEach(emptyLk);
     ['b-uni','b-tool','b-subj','b-pref','b-noreason','b-usereason','b-understand'].forEach(emptyBar);
-    setText('st-never','—');setText('st-never-s','of respondents');setText('st-reg','—');setText('st-reg-s','of respondents');setText('st-tool','—');setText('st-tool-s','—');setText('st-reason','—');
+    setText('st-never','&mdash;');setText('st-never-s','of respondents');setText('st-reg','&mdash;');setText('st-reg-s','of respondents');setText('st-tool','&mdash;');setText('st-tool-s','&mdash;');setText('st-reason','&mdash;');
     return;
   }
   drawDonut('c-tongue','l-tongue',countBy(allData,'tongue'),n);drawDonut('c-age','l-age',countBy(allData,'age'),n);
@@ -484,20 +449,39 @@ function drawCharts(){
   setText('st-never',nU.length);setText('st-never-s',Math.round(nU.length/n*100)+'% of respondents');
   setText('st-reg',rU.length);setText('st-reg-s',Math.round(rU.length/n*100)+'% of respondents');
   var tM=topN(countBy(tU,'toolUsed'),8);
-  if(tM.length){drawBar('b-tool',tM.map(function(e){return e[0];}),tM.map(function(e){return e[1];}));setText('st-tool',tM[0][0]);setText('st-tool-s',Math.round(tM[0][1]/(tU.length||1)*100)+'% of tool users');}else{emptyBar('b-tool');setText('st-tool','—');setText('st-tool-s','—');}
+  if(tM.length){drawBar('b-tool',tM.map(function(e){return e[0];}),tM.map(function(e){return e[1];}));setText('st-tool',tM[0][0]);setText('st-tool-s',Math.round(tM[0][1]/(tU.length||1)*100)+'% of tool users');}else{emptyBar('b-tool');setText('st-tool','&mdash;');setText('st-tool-s','&mdash;');}
   var nRM=topN(countRanked(nU,'reasonsNot'),6);if(nRM.length)drawBar('b-noreason',nRM.map(function(e){return e[0];}),nRM.map(function(e){return e[1];}));else emptyBar('b-noreason');
-  var uRM=topN(countRanked(tU,'reasonsFor'),6);if(uRM.length){drawBar('b-usereason',uRM.map(function(e){return e[0];}),uRM.map(function(e){return e[1];}));setText('st-reason',uRM[0][0]);}else{emptyBar('b-usereason');setText('st-reason','—');}
+  var uRM=topN(countRanked(tU,'reasonsFor'),6);if(uRM.length){drawBar('b-usereason',uRM.map(function(e){return e[0];}),uRM.map(function(e){return e[1];}));setText('st-reason',uRM[0][0]);}else{emptyBar('b-usereason');setText('st-reason','&mdash;');}
   var uFM=topN(countRanked(allData,'underFactors'),7);if(uFM.length)drawBar('b-understand',uFM.map(function(e){return e[0];}),uFM.map(function(e){return e[1];}));else emptyBar('b-understand');
 }
 
 function renderTable(){
   var body=document.getElementById('tbl-body');if(!body)return;
   var start=(curPage-1)*rowsPerPage,slice=filteredData.slice(start,start+rowsPerPage);
-  if(!slice.length){body.innerHTML='<tr><td colspan="9" style="text-align:center;padding:32px;color:#999;font-style:italic">'+(allData.length?'No matching responses.':'No responses yet — configure Google Sheets in ⚙ Data Management.')+'</td></tr>';}
-  else{body.innerHTML=slice.map(function(r,i){var ai=start+i,u=r.usage!==null?'<strong style="color:var(--navy)">'+r.usage+'</strong><span style="color:#aaa"> /7</span>':'—',nd=r.understanding!==null?'<strong style="color:var(--navy)">'+r.understanding+'</strong><span style="color:#aaa"> /7</span>':'—',rid=r.rowId||'';return'<tr><td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.name+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.date+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer"><span class="badge badge-navy">'+r.university+'</span></td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.degree+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.tongue+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+u+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+nd+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.studyMode+'</td><td onclick="showDetail('+ai+')" style="cursor:pointer"><span class="badge badge-green">✓</span></td><td><button onclick="deleteRow(''+rid+'','+ai+')" style="padding:2px 7px;background:transparent;border:1px solid #f5c6cb;border-radius:3px;font-size:10px;color:#c0392b;cursor:pointer" title="Delete">✕</button></td></tr>';}).join('');}
+  if(!slice.length){body.innerHTML='<tr><td colspan="10" style="text-align:center;padding:32px;color:#999;font-style:italic">'+(allData.length?'No matching responses.':'No responses yet.')+'</td></tr>';}
+  else{
+    body.innerHTML=slice.map(function(r,i){
+      var ai=start+i;
+      var u=r.usage!==null?'<strong style="color:var(--navy)">'+r.usage+'</strong><span style="color:#aaa"> /7</span>':'&mdash;';
+      var nd=r.understanding!==null?'<strong style="color:var(--navy)">'+r.understanding+'</strong><span style="color:#aaa"> /7</span>':'&mdash;';
+      var rid=encodeURIComponent(r.rowId||'');
+      return '<tr>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.name+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.date+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer"><span class="badge badge-navy">'+r.university+'</span></td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.degree+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.tongue+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+u+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+nd+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer">'+r.studyMode+'</td>'
+        +'<td onclick="showDetail('+ai+')" style="cursor:pointer"><span class="badge badge-green">&#10003;</span></td>'
+        +'<td><button onclick="deleteRow(\''+rid+'\','+ai+')" style="padding:2px 7px;background:transparent;border:1px solid #f5c6cb;border-radius:3px;font-size:10px;color:#c0392b;cursor:pointer" title="Delete">&#10005;</button></td>'
+        +'</tr>';
+    }).join('');
+  }
   var total=filteredData.length,pages=Math.ceil(total/rowsPerPage)||1;
-  setText('pg-info',total?'Showing '+(start+1)+'–'+Math.min(start+rowsPerPage,total)+' of '+total:'No results');
-  var btns='';for(var p=1;p<=pages;p++)btns+='<button class="pg-btn'+(p===curPage?' active':'')+'\" onclick="goPage('+p+')">'+p+'</button>';
+  setText('pg-info',total?'Showing '+(start+1)+'\u2013'+Math.min(start+rowsPerPage,total)+' of '+total:'No results');
+  var btns='';for(var p=1;p<=pages;p++)btns+='<button class="pg-btn'+(p===curPage?' active':'')+'" onclick="goPage('+p+')">'+p+'</button>';
   document.getElementById('pg-btns').innerHTML=btns;
 }
 function goPage(p){curPage=p;renderTable();}
@@ -507,132 +491,147 @@ function sortTbl(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}v
 function showDetail(i){
   var r=filteredData[i];if(!r)return;
   var flds=[
-    ['Participant Name',r.name],['Submitted',r.date],['Consent','✓ Consented'],
-    ['— Section 1: Basic Information —',''],
+    ['Participant Name',r.name],['Submitted',r.date],['Consent','Consented'],
+    ['Section 1: Basic Information',''],
     ['Q1 Mother Tongue',r.tongue],['Q2 Age',r.age],['Q3 Gender',r.gender],
     ['Q4 Origin',r.origin],['Q5 University',r.university],['Q6 Status',r.status],
-    ['Q7 Degree Type (Current Student)',r.q7DegreeType||'—'],
-    ['Q7 Year of Study',r.q7Year||'—'],
-    ['Q8 Degree Type (Alumni)',r.q8DegreeType||'—'],
-    ['Q8 Degree Other (Alumni)',r.q8DegreeOther||'—'],
-    ['Q8 Graduation Year',r.q8GradYear||'—'],
-    ['Q9 Subject Area',r.subject],
-    ['Q10 Full/Part-time',r.fullPartTime],
-    ['— Section 2: Mode of Study —',''],
+    ['Q7 Degree Type (Current)',r.q7DegreeType],['Q7 Year of Study',r.q7Year],
+    ['Q8 Degree Type (Alumni)',r.q8DegreeType],['Q8 Degree Other',r.q8DegreeOther],['Q8 Graduation Year',r.q8GradYear],
+    ['Q9 Subject Area',r.subject],['Q10 Full/Part-time',r.fullPartTime],
+    ['Section 2: Mode of Study',''],
     ['Q11 Study Mode',r.studyMode],
-    ['Q12 Face-to-face %',r.ftfPct&&r.ftfPct!=='—'?r.ftfPct+'%':'—'],
-    ['Q12 Online %',r.onlinePct&&r.onlinePct!=='—'?r.onlinePct+'%':'—'],
-    ['— Section 3: Translation Tools —',''],
-    ['Q13 Tool Usage Frequency (1–7)',r.usage!==null?r.usage+' / 7':'—'],
-    ['Q14 Reasons NOT Using Tools',r.reasonsNot||'—'],
-    ['Q15 Translation Tool Used',r.toolUsed],
-    ['Q16 Reasons FOR Using Tools',r.reasonsFor||'—'],
-    ['— Section 4: Understanding —',''],
-    ['Q17 Understanding Score (1–7)',r.understanding!==null?r.understanding+' / 7':'—'],
-    ['Q18 Understanding Factors',r.underFactors||'—'],
-    ['— Section 5: English Qualification —',''],
-    ['Q19 Has English Proficiency Test',r.hasTest||'—'],
-    ['Q20 Test Taken',r.testTaken||'—'],
-    ['Q21 Test Result / Score',r.testResult||'—'],
-    ['— Section 6: Views on Online Degrees —',''],
-    ['Q22 Mode Preference',r.preference||'—'],
-    ['Q23 Online Degree Bias',r.onlineBias||'—'],
-    ['Q24 Bias Reasons',r.biasReasons||'—'],
-    ['Q25 Accept Reasons',r.acceptReasons||'—']
+    ['Q12 Face-to-face %',r.ftfPct],['Q12 Online %',r.onlinePct],
+    ['Section 3: Translation Tools',''],
+    ['Q13 Usage Frequency (1-7)',r.usage!==null?r.usage+' / 7':'&mdash;'],
+    ['Q14 Reasons NOT Using',r.reasonsNot],['Q15 Tool Used',r.toolUsed],['Q16 Reasons FOR Using',r.reasonsFor],
+    ['Section 4: Understanding',''],
+    ['Q17 Understanding (1-7)',r.understanding!==null?r.understanding+' / 7':'&mdash;'],['Q18 Factors',r.underFactors],
+    ['Section 5: English Qualification',''],
+    ['Q19 Has Test',r.hasTest],['Q20 Test Taken',r.testTaken],['Q21 Result',r.testResult],
+    ['Section 6: Online Degrees',''],
+    ['Q22 Preference',r.preference],['Q23 Online Bias',r.onlineBias],
+    ['Q24 Bias Reasons',r.biasReasons],['Q25 Accept Reasons',r.acceptReasons]
   ];
-  document.getElementById('modal-body').innerHTML=flds.map(function(f){if(f[1]==='')return'<div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:12px 0 5px;border-top:1px solid var(--rule);margin-top:5px">'+f[0]+'</div>';return'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f2ee;gap:12px"><span style="font-size:12px;color:var(--ink3);flex-shrink:0">'+f[0]+'</span><span style="font-size:12.5px;color:var(--navy);font-weight:500;text-align:right">'+(f[1]||'—')+'</span></div>';}).join('');
+  document.getElementById('modal-body').innerHTML=flds.map(function(f){
+    if(f[1]==='')return'<div style="font-size:9.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);padding:12px 0 5px;border-top:1px solid var(--rule);margin-top:5px">'+f[0]+'</div>';
+    return'<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f2ee;gap:12px"><span style="font-size:12px;color:var(--ink3);flex-shrink:0">'+f[0]+'</span><span style="font-size:12.5px;color:var(--navy);font-weight:500;text-align:right">'+(f[1]||'&mdash;')+'</span></div>';
+  }).join('');
   document.getElementById('modal').classList.add('open');
 }
 function closeModal(){document.getElementById('modal').classList.remove('open');}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 
 function buildRaw(data){
-  var hdr=[
-    '#','Participant Name','Submission Date','Consent Date',
-    'Q1 Mother Tongue','Q2 Age','Q3 Gender','Q4 Origin',
-    'Q5 University','Q6 Status',
-    'Q7 Degree Type (Current)','Q7 Year of Study',
-    'Q8 Degree Type (Alumni)','Q8 Degree Other','Q8 Graduation Year',
-    'Q9 Subject Area','Q10 Full/Part-time',
-    'Q11 Study Mode','Q12 Face-to-face %','Q12 Online %',
-    'Q13 Tool Usage (1-7 scale)','Q14 Reasons NOT Using Tools',
-    'Q15 Translation Tool Used','Q16 Reasons FOR Using Tools',
-    'Q17 Understanding (1-7 scale)','Q18 Understanding Factors',
-    'Q19 Has English Test','Q20 Test Taken','Q21 Test Result',
-    'Q22 Mode Preference','Q23 Online Degree Bias',
-    'Q24 Bias Reasons','Q25 Accept Reasons','Consented'
-  ];
+  var hdr=['#','Participant Name','Submission Date','Consent Date','Q1 Mother Tongue','Q2 Age','Q3 Gender','Q4 Origin','Q5 University','Q6 Status','Q7 Degree Type (Current)','Q7 Year of Study','Q8 Degree Type (Alumni)','Q8 Degree Other','Q8 Graduation Year','Q9 Subject Area','Q10 Full/Part-time','Q11 Study Mode','Q12 Face-to-face %','Q12 Online %','Q13 Tool Usage (1-7)','Q14 Reasons NOT Using','Q15 Tool Used','Q16 Reasons FOR Using','Q17 Understanding (1-7)','Q18 Understanding Factors','Q19 Has English Test','Q20 Test Taken','Q21 Test Result','Q22 Mode Preference','Q23 Online Degree Bias','Q24 Bias Reasons','Q25 Accept Reasons','Consented'];
   var rows=[hdr];
-  data.forEach(function(r,i){
-    rows.push([
-      i+1, r.name, r.date, r.consentDate||'—',
-      r.tongue, r.age, r.gender, r.origin,
-      r.university, r.status,
-      r.q7DegreeType||'—', r.q7Year||'—',
-      r.q8DegreeType||'—', r.q8DegreeOther||'—', r.q8GradYear||'—',
-      r.subject, r.fullPartTime,
-      r.studyMode, r.ftfPct||'—', r.onlinePct||'—',
-      r.usage||'—', r.reasonsNot||'—',
-      r.toolUsed, r.reasonsFor||'—',
-      r.understanding||'—', r.underFactors||'—',
-      r.hasTest, r.testTaken||'—', r.testResult||'—',
-      r.preference, r.onlineBias||'—',
-      r.biasReasons||'—', r.acceptReasons||'—', 'Yes'
-    ]);
-  });
+  data.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.consentDate,r.tongue,r.age,r.gender,r.origin,r.university,r.status,r.q7DegreeType,r.q7Year,r.q8DegreeType,r.q8DegreeOther,r.q8GradYear,r.subject,r.fullPartTime,r.studyMode,r.ftfPct,r.onlinePct,r.usage,r.reasonsNot,r.toolUsed,r.reasonsFor,r.understanding,r.underFactors,r.hasTest,r.testTaken,r.testResult,r.preference,r.onlineBias,r.biasReasons,r.acceptReasons,'Yes']);});
   var ws=XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols']=[4,22,14,14,14,10,8,14,12,16,16,10,16,16,14,14,12,14,10,10,14,28,18,28,14,28,12,14,16,18,12,28,28,10].map(function(w){return{wch:w};});
+  ws['!cols']=[4,22,14,14,14,10,8,14,12,16,16,10,16,16,14,14,12,14,10,10,10,28,18,28,10,28,12,14,16,18,12,28,28,10].map(function(w){return{wch:w};});
   return ws;
 }
-function buildStats(){var n=allData.length||1;function sb(lbl,m,t){var r=[['-- '+lbl+' --','Count','%']];Object.entries(m).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){r.push([e[0],e[1],Math.round(e[1]/t*100)+'%']);});r.push(['','','']);return r;}var rows=[['EdUHK SES6026 — Summary Statistics','',''],['Generated',new Date().toLocaleDateString('en-GB'),''],['Total',allData.length,''],['Avg Usage Q13',avgF(allData,'usage').toFixed(2),'/ 7'],['Avg Understanding Q17',avgF(allData,'understanding').toFixed(2),'/ 7'],['','','']];rows=rows.concat(sb('MOTHER TONGUE Q1',countBy(allData,'tongue'),n));rows=rows.concat(sb('AGE Q2',countBy(allData,'age'),n));rows=rows.concat(sb('GENDER Q3',countBy(allData,'gender'),n));rows=rows.concat(sb('UNIVERSITY Q5',countBy(allData,'university'),n));rows=rows.concat(sb('STATUS Q6',countBy(allData,'status'),n));rows=rows.concat(sb('SUBJECT Q9',countBy(allData,'subject'),n));rows=rows.concat(sb('STUDY MODE Q11',countBy(allData,'studyMode'),n));var lbl=['1-Never','2-Rarely','3-Sometimes','4-Half','5-Often','6-Mostly','7-Always'];rows.push(['-- TOOL USAGE Q13 --','Count','%']);lkDist(allData,'usage').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);rows.push(['-- UNDERSTANDING Q17 --','Count','%']);lkDist(allData,'understanding').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);var tU=allData.filter(function(r){return r.usage>1;});rows=rows.concat(sb('TOOL USED Q15',countBy(tU,'toolUsed'),tU.length||1));rows=rows.concat(sb('PREFERENCE Q22',countBy(allData,'preference'),n));rows=rows.concat(sb('ONLINE BIAS Q23',countBy(allData,'onlineBias'),n));var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:46},{wch:12},{wch:8}];return ws;}
-function buildConsent(){var hdr=['#','Name','Date','University','Degree','Status','Consented','Study'],rows=[hdr];allData.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.status,'Yes','SES6026 MA Thesis — EdUHK']);});return XLSX.utils.aoa_to_sheet(rows);}
-function expAll(){if(!allData.length){toast('No data to export');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(allData),'Raw Responses');XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.utils.book_append_sheet(wb,buildConsent(),'Consent Log');XLSX.writeFile(wb,'EdUHK_SES6026_Full_Report.xlsx');toast('✓ Excel downloaded (3 sheets)');}catch(e){toast('Export error: '+e.message);}}
-function expStats(){if(!allData.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.writeFile(wb,'EdUHK_SES6026_Stats.xlsx');toast('✓ Statistics downloaded');}catch(e){toast('Export error: '+e.message);}}
-function expFiltered(){var d=filteredData.length?filteredData:allData;if(!d.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(d),'Filtered');XLSX.writeFile(wb,'EdUHK_SES6026_Filtered.xlsx');toast('✓ Exported '+d.length+' rows');}catch(e){toast('Export error: '+e.message);}}
-function expCSV(){if(!allData.length){toast('No data');return;}try{var hdr=['#','Name','Date','University','Tongue','Age','Gender','Mode','Usage','Tool','Understanding','Preference','Consented'],rows=[hdr.join(',')];allData.forEach(function(r,i){var q=function(v){return'"'+(v||'').toString().replace(/"/g,'""')+'"';};rows.push([i+1,q(r.name),q(r.date),q(r.university),q(r.tongue),q(r.age),q(r.gender),q(r.studyMode),r.usage||'',q(r.toolUsed),r.understanding||'',q(r.preference),'Yes'].join(','));});var blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8;'});var url=URL.createObjectURL(blob);var a=document.createElement('a');a.href=url;a.download='EdUHK_SES6026.csv';a.click();URL.revokeObjectURL(url);toast('✓ CSV downloaded');}catch(e){toast('Export error: '+e.message);}}
+function buildStats(){
+  var n=allData.length||1;
+  function sb(lbl,m,t){var r=[['-- '+lbl+' --','Count','%']];Object.entries(m).sort(function(a,b){return b[1]-a[1];}).forEach(function(e){r.push([e[0],e[1],Math.round(e[1]/t*100)+'%']);});r.push(['','','']);return r;}
+  var rows=[['EdUHK SES6026 Summary Statistics','',''],['Generated',new Date().toLocaleDateString('en-GB'),''],['Total Responses',allData.length,''],['Avg Usage Q13',avgF(allData,'usage').toFixed(2),'/ 7'],['Avg Understanding Q17',avgF(allData,'understanding').toFixed(2),'/ 7'],['','','']];
+  rows=rows.concat(sb('Q1 MOTHER TONGUE',countBy(allData,'tongue'),n));
+  rows=rows.concat(sb('Q2 AGE',countBy(allData,'age'),n));
+  rows=rows.concat(sb('Q3 GENDER',countBy(allData,'gender'),n));
+  rows=rows.concat(sb('Q4 ORIGIN',countBy(allData,'origin'),n));
+  rows=rows.concat(sb('Q5 UNIVERSITY',countBy(allData,'university'),n));
+  rows=rows.concat(sb('Q6 STATUS',countBy(allData,'status'),n));
+  rows=rows.concat(sb('Q9 SUBJECT',countBy(allData,'subject'),n));
+  rows=rows.concat(sb('Q10 FULL/PART-TIME',countBy(allData,'fullPartTime'),n));
+  rows=rows.concat(sb('Q11 STUDY MODE',countBy(allData,'studyMode'),n));
+  var lbl=['1-Never','2-Rarely','3-Sometimes','4-Half','5-Often','6-Mostly','7-Always'];
+  rows.push(['-- Q13 TOOL USAGE --','Count','%']);lkDist(allData,'usage').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
+  rows.push(['-- Q17 UNDERSTANDING --','Count','%']);lkDist(allData,'understanding').forEach(function(v,i){rows.push([lbl[i],v,Math.round(v/n*100)+'%']);});rows.push(['','','']);
+  var tU=allData.filter(function(r){return r.usage>1;});
+  rows=rows.concat(sb('Q15 TOOL USED',countBy(tU,'toolUsed'),tU.length||1));
+  rows=rows.concat(sb('Q22 PREFERENCE',countBy(allData,'preference'),n));
+  rows=rows.concat(sb('Q23 ONLINE BIAS',countBy(allData,'onlineBias'),n));
+  rows=rows.concat(sb('Q19 HAS ENGLISH TEST',countBy(allData,'hasTest'),n));
+  var ws=XLSX.utils.aoa_to_sheet(rows);ws['!cols']=[{wch:46},{wch:12},{wch:8}];return ws;
+}
+function buildConsent(){
+  var hdr=['#','Name','Date','University','Degree','Status','Consented','Study'],rows=[hdr];
+  allData.forEach(function(r,i){rows.push([i+1,r.name,r.date,r.university,r.degree,r.status,'Yes','SES6026 MA Thesis EdUHK']);});
+  return XLSX.utils.aoa_to_sheet(rows);
+}
+function expAll(){if(!allData.length){toast('No data to export');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(allData),'Raw Responses');XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.utils.book_append_sheet(wb,buildConsent(),'Consent Log');XLSX.writeFile(wb,'EdUHK_SES6026_Full_Report.xlsx');toast('Excel downloaded (3 sheets)');}catch(e){toast('Export error: '+e.message);}}
+function expStats(){if(!allData.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildStats(),'Summary Statistics');XLSX.writeFile(wb,'EdUHK_SES6026_Stats.xlsx');toast('Statistics downloaded');}catch(e){toast('Export error: '+e.message);}}
+function expFiltered(){var d=filteredData.length?filteredData:allData;if(!d.length){toast('No data');return;}try{var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,buildRaw(d),'Filtered');XLSX.writeFile(wb,'EdUHK_SES6026_Filtered.xlsx');toast('Exported '+d.length+' rows');}catch(e){toast('Export error: '+e.message);}}
+function expCSV(){
+  if(!allData.length){toast("No data");return;}
+  try{
+    var DQ=String.fromCharCode(34);
+    var NL=String.fromCharCode(10);
+    var BOM=String.fromCharCode(0xFEFF);
+    function q(v){
+      var s=String(v||"");
+      if(s.indexOf(",")!==-1||s.indexOf(DQ)!==-1){
+        return DQ+s.split(DQ).join(DQ+DQ)+DQ;
+      }
+      return s;
+    }
+    var hdr=["#","Name","Date","University","Tongue","Age","Gender","Mode","Usage","Tool","Understanding","Preference","Consented"];
+    var rows=[hdr.join(",")];
+    allData.forEach(function(r,i){
+      rows.push([i+1,q(r.name),q(r.date),q(r.university),q(r.tongue),q(r.age),q(r.gender),q(r.studyMode),r.usage||"",q(r.toolUsed),r.understanding||"",q(r.preference),"Yes"].join(","));
+    });
+    var blob=new Blob([BOM+rows.join(NL)],{type:"text/csv;charset=utf-8;"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;a.download="EdUHK_SES6026.csv";a.click();
+    URL.revokeObjectURL(url);
+    toast("CSV downloaded");
+  }catch(e){toast("Export error: "+e.message);}
+}
+
 
 function deleteRow(rowId, idx) {
-  if (!rowId) { toast('Cannot delete — no row ID found'); return; }
+  var decoded = decodeURIComponent(rowId);
+  if (!decoded) { toast('Cannot delete: no row ID'); return; }
   if (!confirm('Delete this response? This cannot be undone.')) return;
   if (!SCRIPT_URL) { toast('No script URL configured'); return; }
-  toast('Deleting…');
-  fetch(SCRIPT_URL + '?action=deleteRow&id=' + encodeURIComponent(rowId))
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (res.status === 'ok') {
-        allData = allData.filter(function(r) { return r.rowId !== rowId; });
-        filteredData = filteredData.filter(function(r) { return r.rowId !== rowId; });
-        renderTable(); drawCharts();
-        toast('✓ Response deleted');
-      } else {
-        toast('Error: ' + res.message);
-      }
+  toast('Deleting...');
+  fetch(SCRIPT_URL + '?action=deleteRow&id=' + encodeURIComponent(decoded))
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.status==='ok'){
+        allData=allData.filter(function(r){return r.rowId!==decoded;});
+        filteredData=filteredData.filter(function(r){return r.rowId!==decoded;});
+        renderTable();drawCharts();toast('Response deleted');
+      }else{toast('Error: '+res.message);}
     })
-    .catch(function(e) { toast('Delete failed: ' + e.message); });
+    .catch(function(e){toast('Delete failed: '+e.message);});
 }
 
 function clearAllData() {
   if (!SCRIPT_URL) { toast('No script URL configured'); return; }
-  if (!confirm('Delete ALL responses from Google Sheets? This cannot be undone.')) return;
-  if (!confirm('Are you sure? This will permanently delete every response.')) return;
-  toast('Clearing all data…');
+  if (!confirm('Delete ALL responses? This cannot be undone.')) return;
+  if (!confirm('Final confirmation: permanently delete all responses?')) return;
+  toast('Clearing all data...');
   fetch(SCRIPT_URL + '?action=clearAll')
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (res.status === 'ok') {
-        allData = []; filteredData = [];
-        renderTable(); drawCharts();
-        setBanner('warn', '⚠ All responses have been deleted from Google Sheets.');
-        toast('✓ All responses cleared');
-      } else {
-        toast('Error: ' + res.message);
-      }
+    .then(function(r){return r.json();})
+    .then(function(res){
+      if(res.status==='ok'){allData=[];filteredData=[];renderTable();drawCharts();setBanner('warn','All responses deleted.');toast('All responses cleared');}
+      else{toast('Error: '+res.message);}
     })
-    .catch(function(e) { toast('Clear failed: ' + e.message); });
+    .catch(function(e){toast('Clear failed: '+e.message);});
 }
 
-function saveConfig(){var url=(document.getElementById('script-url-input').value||'').trim();if(!url){toast('Please enter the Script URL');return;}localStorage.setItem('gsheet_script_url',url);SCRIPT_URL=url;setText('cfg-status','Saved ✓');toast('✓ URL saved — loading data…');loadData();}
-function clearConfig(){localStorage.removeItem('gsheet_script_url');SCRIPT_URL='';var el=document.getElementById('script-url-input');if(el)el.value='';setText('cfg-status','Not configured');toast('Configuration cleared');setBanner('warn','⚠ Enter your Google Apps Script URL in ⚙ Data Management.');}
+function saveConfig(){
+  var url=(document.getElementById('script-url-input').value||'').trim();
+  if(!url){toast('Please enter the Script URL');return;}
+  localStorage.setItem('gsheet_script_url',url);SCRIPT_URL=url;
+  setText('cfg-status','Saved');toast('URL saved, loading data...');loadData();
+}
+function clearConfig(){
+  localStorage.removeItem('gsheet_script_url');SCRIPT_URL='';
+  var el=document.getElementById('script-url-input');if(el)el.value='';
+  setText('cfg-status','Not configured');toast('Configuration cleared');
+  setBanner('warn','Enter your Google Apps Script URL in Data Management.');
+}
 
 function toast(msg){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},3000);}
 function signOut(){localStorage.removeItem('admin_auth');window.location.href='admin-login.html';}
@@ -643,16 +642,15 @@ document.addEventListener('DOMContentLoaded', function() {
   if(dateEl)dateEl.textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
   var urlEl=document.getElementById('script-url-input');
   if(urlEl&&SCRIPT_URL)urlEl.value=SCRIPT_URL;
-  setText('cfg-status',SCRIPT_URL?'Saved ✓':'Not configured');
+  setText('cfg-status',SCRIPT_URL?'Saved':'Not configured');
   document.querySelectorAll('.section').forEach(function(s){
     if(s.id==='tab-overview'){s.style.display='block';s.classList.add('active');}
     else{s.style.display='none';s.classList.remove('active');}
   });
-  drawCharts();
-  renderTable();
-  loadData();
+  drawCharts();renderTable();loadData();
 });
 window.addEventListener('resize',function(){clearTimeout(window._rt);window._rt=setTimeout(drawCharts,200);});
 </script>
+
 </body>
 </html>
