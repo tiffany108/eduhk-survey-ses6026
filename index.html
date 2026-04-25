@@ -1220,9 +1220,9 @@ footer {
           <div class="pill" onclick="selectOne(this,'q8-type','q8-other')">Others</div>
         </div>
         <div id="q8-other" class="conditional" style="margin-bottom:10px">
-          <input type="text" placeholder="Please specify…">
+          <input type="text" id="q8-other-txt" placeholder="Please specify…">
         </div>
-        <input type="text" placeholder="Year of graduation (e.g. 2022)" style="max-width:260px">
+        <input type="text" id="q8-gradyear" placeholder="Year of graduation (e.g. 2022)" style="max-width:260px">
       </div>
     </div>
   </div>
@@ -1286,14 +1286,14 @@ footer {
         <label style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft)">
           Face-to-face
           <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-            <input type="text" placeholder="0" style="width:72px;text-align:center">
+            <input type="text" id="q12-ftf-input" placeholder="0" style="width:72px;text-align:center">
             <span style="color:var(--ink-soft);font-size:14px">%</span>
           </div>
         </label>
         <label style="font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft)">
           Online
           <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
-            <input type="text" placeholder="0" style="width:72px;text-align:center">
+            <input type="text" id="q12-online-input" placeholder="0" style="width:72px;text-align:center">
             <span style="color:var(--ink-soft);font-size:14px">%</span>
           </div>
         </label>
@@ -1856,70 +1856,6 @@ function getTextInput(selector) {
 }
 
 /* ── 11. COLLECT ALL ANSWERS ── */
-function collectResponses() {
-  var q1val  = getSelectedPill('q1');
-  var q4val  = getSelectedPill('q4');
-  var q5val  = getSelectedPill('q5');
-  var q6val  = getSelectedPill('q6');
-  var q9val  = getSelectedPill('q9');
-  var q11val = getSelectedPill('q11');
-  var q15val = getSelectedPill('q15');
-  var q19val = getSelectedPill('q19');
-  var q22val = getSelectedPill('q22');
-  var q23val = getSelectedPill('q23');
-
-  return {
-    id:              'resp_' + Date.now() + '_' + Math.random().toString(36).substr(2,6),
-    submittedAt:     new Date().toISOString(),
-    consentName:     window._consentName || '',
-    consentDate:     window._consentDate || '',
-    q1_motherTongue: q1val === 'Others' ? ('Others: ' + getTextInput('#q1-other input')) : q1val,
-    q2_age:          getSelectedPill('q2'),
-    q3_gender:       getSelectedPill('q3'),
-    q4_origin:       q4val === 'Others' ? ('Others: ' + getTextInput('#q4-other input')) : q4val,
-    q5_university:   q5val === 'Others' ? ('Others: ' + getTextInput('#q5-other input')) : q5val,
-    q6_status:       q6val,
-    q7_degreeType:   getSelectedPill('q7-type'),
-    q7_year:         getSelectedPill('q7-year'),
-    q8_degreeType:   getSelectedPill('q8-type'),
-    q8_gradYear:     getTextInput('#q6-alumni input[type=text]'),
-    q9_subject:      q9val === 'Others' ? ('Others: ' + getTextInput('#q9-other input')) : q9val,
-    q10_fullPartTime: getSelectedPill('q10'),
-    q11_studyMode:   q11val === 'Others' ? ('Others: ' + getTextInput('#q11-other input')) : q11val,
-    q12_ftfPct:      getTextInput('#q12-card input:first-of-type'),
-    q12_onlinePct:   getTextInput('#q12-card input:last-of-type'),
-    q13_usageFreq:   getSelectedLikert('q13'),
-    q14_reasonsNotUsing: getRanked('q14'),
-    q15_toolUsed:    q15val === 'Others' ? ('Others: ' + getTextInput('#q15-other input')) : q15val,
-    q16_reasonsUsing:getRanked('q16'),
-    q17_understanding: getSelectedLikert('q17'),
-    q18_understandingFactors: getRanked('q18'),
-    q19_hasTest:     q19val,
-    q20_testTaken:   getSelectedPill('q20'),
-    q21_testResult:  getTextInput('#q19-detail input[type=text]'),
-    q22_preference:  q22val === 'Others' ? ('Others: ' + getTextInput('#q22-other input')) : q22val,
-    q23_onlineBias:  q23val,
-    q24_biasReasons: getRanked('q24'),
-    q25_acceptReasons: getRanked('q25'),
-  };
-}
-
-/* ── 12. SUBMIT TO NETLIFY FORMS ── */
-/* ══════════════════════════════════════════════
-   GOOGLE SHEETS BACKEND
-   
-   SETUP (one-time, 3 minutes):
-   1. Go to sheets.google.com → create new sheet named "EdUHK SES6026 Responses"
-   2. Click Extensions → Apps Script
-   3. Paste the Apps Script code from setup-instructions.html
-   4. Click Deploy → New deployment → Web app
-      - Execute as: Me
-      - Who has access: Anyone
-   5. Copy the Web App URL and paste it below as SCRIPT_URL
-═══════════════════════════════════════════════ */
-
-var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbybVQaSZxXSumrc9Wlkb5efK4S2HunQ6-kiI_2VQaZdShLefUbB94PV7EPlbwlzTpZYTA/exec'; // ← PASTE YOUR GOOGLE APPS SCRIPT URL HERE
-
 function collectFormData() {
   var q1val  = getSelectedPill('q1');
   var q4val  = getSelectedPill('q4');
@@ -1945,12 +1881,13 @@ function collectFormData() {
     'q7-degree-type':         getSelectedPill('q7-type'),
     'q7-year':                getSelectedPill('q7-year'),
     'q8-degree-type':         getSelectedPill('q8-type'),
-    'q8-grad-year':           getTextInput('#q6-alumni input[type=text]'),
+    'q8-degree-type-other':    getTextInput('#q8-other-txt'),
+    'q8-grad-year':           getTextInput('#q8-gradyear'),
     'q9-subject':             q9val === 'Others' ? ('Others: ' + getTextInput('#q9-other input')) : q9val,
     'q10-full-part-time':     getSelectedPill('q10'),
     'q11-study-mode':         q11val === 'Others' ? ('Others: ' + getTextInput('#q11-other input')) : q11val,
-    'q12-ftf-pct':            getTextInput('#q12-card input:first-of-type'),
-    'q12-online-pct':         getTextInput('#q12-card input:last-of-type'),
+    'q12-ftf-pct':            getTextInput('#q12-ftf-input'),
+    'q12-online-pct':         getTextInput('#q12-online-input'),
     'q13-usage-freq':         String(getSelectedLikert('q13') || ''),
     'q14-reasons-not-using':  getRanked('q14'),
     'q15-tool-used':          q15val === 'Others' ? ('Others: ' + getTextInput('#q15-other input')) : q15val,
